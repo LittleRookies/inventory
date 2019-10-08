@@ -13,4 +13,6 @@ public interface OrderRepository extends BaseRepository<Order, String> {
     Page<Map> findAllByStatusNotAndOrderNumberLike(Pageable pageable, String status, String orderNumber);
 
     List<Order> findAllByOrderNumberLike(String orderNumber);
+
+    Order findFirstByOrderNumber(String orderNumber);
 }

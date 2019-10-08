@@ -30,7 +30,7 @@ public class SelfUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        logger.info("loadUserByUsername");
+        logger.info("loadUserByUsername-----username={}", username);
         try {
             //构建用户信息的逻辑(取数据库/LDAP等用户信息)
             SelfUserDetails userInfo = new SelfUserDetails();

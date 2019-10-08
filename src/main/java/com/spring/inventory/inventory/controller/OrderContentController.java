@@ -15,16 +15,29 @@ public class OrderContentController {
     private OrderContentService orderContentService;
 
     /**
-     * 查询订单在redis临时内容
+     * 查询订单商品内容
      *
      * @param orderNumber
      * @return
      */
     @PreAuthorize("hasAnyAuthority('root')")
     @GetMapping("/findOrderData")
-    public AjaxResponseBody findOrderData2(String orderNumber) {
+    public AjaxResponseBody findOrderData(String orderNumber) {
         return orderContentService.findOrderData(orderNumber);
     }
+
+    /**
+     * 查询订单在redis临时内容
+     *
+     * @param orderNumber
+     * @return
+     */
+    @PreAuthorize("hasAnyAuthority('root')")
+    @GetMapping("/findOrderData2")
+    public AjaxResponseBody findOrderData2(String orderNumber) {
+        return orderContentService.findOrderDataByRedis(orderNumber);
+    }
+
 
     /**
      * 保存临时订单数据redis

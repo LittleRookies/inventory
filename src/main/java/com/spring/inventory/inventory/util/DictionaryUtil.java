@@ -26,7 +26,7 @@ public class DictionaryUtil {
         String result = "";
         switch (status) {
             case "Y":
-                result = "通过";
+                result = "完成";
                 break;
             case "D":
                 result = "删除";

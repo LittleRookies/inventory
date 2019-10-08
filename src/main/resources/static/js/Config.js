@@ -195,3 +195,15 @@ function floatDiv(arg1, arg2) {
 }
 
 
+//状态栏
+function statusButton(status) {
+    if (status === "Z") {
+        return "<button class=\"layui-btn layui-btn-radius\" disabled>进行中</button>\n";
+    } else if (status === "D") {
+        return "<button type=\"button\" class=\"layui-btn layui-btn-danger layui-btn-radius\">已删除</button>"
+    } else if (status === "Y") {
+        return "<button type=\"button\" class=\"layui-btn layui-btn-normal layui-btn-radius\">已完成</button>\n"
+    }
+}
+
+

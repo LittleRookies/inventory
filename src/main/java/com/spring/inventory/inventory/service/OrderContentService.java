@@ -27,13 +27,19 @@ public class OrderContentService {
     private final Logger logger = LoggerFactory.getLogger(OrderContentService.class);
 
     public AjaxResponseBody findOrderData(String orderNumber) {
-        logger.info("findOrderData");
+        logger.info("findOrderData-----orderNumber={}", orderNumber);
+        List<Map> allByOrderNumber = orderContentRepository.findAllByOrderNumber(orderNumber);
+        return ResponseBodyUtil.successAjax(allByOrderNumber);
+    }
+
+    public AjaxResponseBody findOrderDataByRedis(String orderNumber) {
+        logger.info("findOrderDataByRedis-----orderNumber={}", orderNumber);
         List o = (List) redisTemplate.opsForValue().get(orderNumber);
         return ResponseBodyUtil.successAjax(o);
     }
 
     public AjaxResponseBody saveOrderDataByRedis(Map map) {
-        logger.info("saveOrderDataByRedis");
+        logger.info("saveOrderDataByRedis-----" + JSON.toJSONString(map));
         List list = (List) redisTemplate.opsForValue().get(String.valueOf(map.get("orderNumber")));
         if (list == null) {
             list = new ArrayList();
@@ -44,7 +50,7 @@ public class OrderContentService {
     }
 
     public AjaxResponseBody delOrderDataByRedis(Map map) {
-        logger.info("delOrderDataByRedis:" + JSON.toJSONString(map));
+        logger.info("delOrderDataByRedis-----" + JSON.toJSONString(map));
         List list = (List) redisTemplate.opsForValue().get(String.valueOf(map.get("orderNumber")));
         list.removeIf(map::equals);
         redisTemplate.opsForValue().set(String.valueOf(map.get("orderNumber")), list);
@@ -52,12 +58,13 @@ public class OrderContentService {
     }
 
     public AjaxResponseBody reSetOrderDataByRedis(String orderNumber) {
-        logger.info("reSetOrderDataByRedis:" + orderNumber);
+        logger.info("reSetOrderDataByRedis-----" + orderNumber);
         redisTemplate.delete(orderNumber);
         return ResponseBodyUtil.successAjax();
     }
 
     public AjaxResponseBody updOrderDataByRedis(Map map) {
+        logger.info("updOrderDataByRedis-----" + JSON.toJSONString(map));
         try {
             List<Map> list = (List) redisTemplate.opsForValue().get(String.valueOf(map.get("orderNumber")));
             assert list != null;

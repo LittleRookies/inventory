@@ -1,5 +1,6 @@
 package com.spring.inventory.inventory.service;
 
+import com.alibaba.fastjson.JSON;
 import com.spring.inventory.inventory.bean.AjaxResponseBody;
 import com.spring.inventory.inventory.bean.Order;
 import com.spring.inventory.inventory.bean.OrderAndContent;
@@ -14,13 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -30,10 +29,14 @@ public class OrderService {
     @Autowired
     private OrderContentRepository orderContentRepository;
 
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     private final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     public AjaxResponseBody findAll(Integer page, Integer size, String orderNumber) {
-        logger.info("findAll:page={},size={},orderNumber={}", page, size, orderNumber);
+        logger.info("findAll-----page={},size={},orderNumber={}", page, size, orderNumber);
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Map> orders = orderRepository.findAllByStatusNotAndOrderNumberLike(pageable, DictionaryUtil.statusD, orderNumber);
         List<Map> content = orders.getContent();
@@ -50,14 +53,49 @@ public class OrderService {
     }
 
     public AjaxResponseBody find(String orderNumber) {
-        return null;
+        logger.info("find-----orderNumber={}", orderNumber);
+        Order firstByOrderNumber = orderRepository.findFirstByOrderNumber(orderNumber);
+        return ResponseBodyUtil.successAjax(firstByOrderNumber);
+    }
+
+    public AjaxResponseBody findUpdate(String orderNumber) {
+        logger.info("find-----orderNumber={}", orderNumber);
+        Order firstByOrderNumber = orderRepository.findFirstByOrderNumber(orderNumber);
+        List<Map> allByOrderNumber = orderContentRepository.findAllByOrderNumber(orderNumber);
+        if (allByOrderNumber.size() != 0) {
+            List<Map> list = new ArrayList<>();
+            redisTemplate.delete(orderNumber);
+            for (Map map : allByOrderNumber) {
+                Map newMap = new LinkedHashMap(map);
+                newMap.put("totalPrice", String.valueOf(map.get("total_price")));
+                newMap.remove("total_price");
+                newMap.put("price", String.valueOf(map.get("price")));
+                list.add(newMap);
+            }
+            redisTemplate.opsForValue().set(orderNumber, list);
+        }
+        return ResponseBodyUtil.successAjax(firstByOrderNumber);
     }
 
     @Transactional
-    public AjaxResponseBody add(OrderAndContent orderAndContent) {
+    public AjaxResponseBody add(OrderAndContent orderAndContent, String founder) {
+        logger.info("add-----" + JSON.toJSONString(orderAndContent));
         orderAndContent.getOrder().setStatus(DictionaryUtil.statusZ);
+        orderAndContent.getOrder().setFounder(founder);
         orderRepository.save(orderAndContent.getOrder());
+        orderContentRepository.deleteAllByOrderNumber(orderAndContent.getOrder().getOrderNumber());
         orderContentRepository.saveAll(orderAndContent.getOrderContents());
+        redisTemplate.delete(orderAndContent.getOrder().getOrderNumber());
+        return ResponseBodyUtil.successAjax();
+    }
+
+    @Transactional
+    public AjaxResponseBody del(String orderNumber, String status_people) {
+        logger.info("del-----orderNumber={}", orderNumber);
+        Order order = orderRepository.findFirstByOrderNumber(orderNumber);
+        order.setStatus(DictionaryUtil.statusD);
+        order.setStatusPeople(status_people);
+        orderRepository.save(order);
         return ResponseBodyUtil.successAjax();
     }
 
