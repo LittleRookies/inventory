@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>库存管理系统</title>
+    <link rel="stylesheet" href="../layui/css/layui.css" media="all">
+    <link rel="import" href="navigation.html">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin" id="data">
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;">
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                <legend>新增订单</legend>
+            </fieldset>
+            <form class="layui-form" action="" method="post">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">订单编号</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="orderNumber" autocomplete="off" lay-verify="required" id="orderNumber"
+                               class="layui-input" disabled>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-inline">
+                        <button class="layui-btn layui-btn-radius" disabled>进行中</button>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">客户</label>
+                    <div class="layui-input-inline">
+                        <select name="client" lay-verify="required" lay-search="" id="client_id">
+                            <option value="">直接选择或搜索选择</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">收付方向</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="payDirection" value="R" title="收" checked>
+                        <input type="radio" name="payDirection" value="P" title="付">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">金额</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="price" autocomplete="off" lay-verify="required" id="price"
+                               class="layui-input" disabled>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">订单内容</label>
+                    <div class="layui-input-block">
+                        <script type="text/html" id="toolbarDemo">
+                            <div class="layui-btn-container">
+                                <button class="layui-btn layui-btn-sm" lay-event="getCheckData" onclick="return false">
+                                    新增商品
+                                </button>
+                            </div>
+                        </script>
+                        <script type="text/html" id="barDemo">
+                            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+                        </script>
+                        <table id="date" lay-filter="test"></table>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-block">
+                        <textarea placeholder="请输入内容" class="layui-textarea" name="remarks"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary" id="reset">重置
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="add-main" style="display: none;">
+        <form class="layui-form" id="add-form" action="">
+            <input type="hidden" name="commodityName" id="commodity-name">
+            <div class="layui-form-item center">
+                <label class="layui-form-label" style="width: 100px">商品</label>
+                <div class="layui-input-inline">
+                    <select name="commodity" lay-verify="required" lay-search="" id="commodity" lay-filter="commodity">
+                        <option value="">直接选择或搜索选择</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item center">
+                <label class="layui-form-label" style="width: 100px">颜色</label>
+                <div class="layui-input-inline">
+                    <select name="color" lay-verify="required" lay-search="" id="color" lay-filter="color">
+                        <option value="">直接选择或搜索选择</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item center">
+                <label class="layui-form-label" style="width: 100px">尺寸</label>
+                <div class="layui-input-inline">
+                    <select name="size" lay-verify="required" lay-search="" id="size">
+                        <option value="">直接选择或搜索选择</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item center">
+                <label class="layui-form-label" style="width: 100px">数量</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" name="num" id="num" onkeyup="value=value.replace(/[^\d]/g,'')">
+                </div>
+            </div>
+            <div class="layui-form-item center">
+                <label class="layui-form-label" style="width: 100px">单价</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" id="dam_piece" name="price" type="number" step="0.01">
+                </div>
+            </div>
+            <div class="layui-form-item center">
+                <label class="layui-form-label" style="width: 100px">总价</label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" id="totalPrice" name="totalPrice" type="number" step="0.01">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="save">确定</button>
+                    <button class="layui-btn layui-btn-primary" onclick="CloseWin();return false">关闭</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="../layui/layui.js"></script>
+<script src="../js/vue/vue.min.js"></script>
+<script src="../js/Config.js"></script>
+<script src="../js/sha256.js"></script>
+<script src="../js/jquery/jquery.js"></script>
+<script>
+    var table_data;
+    /**************初始化表单内容 start**************/
+    //查询订单编号
+    ajaxGet("/order/findOrderNumber");
+    var orderNumber = ajaxdata.data;
+    $("#orderNumber").attr("value", orderNumber);
+    //所有客户
+    ajaxGet("/client/findAllNoPage");
+    for (var client_i = 0; client_i < ajaxdata.data.length; client_i++) {
+        $("#client_id").append("<option value=\"" + ajaxdata.data[client_i].id + "\">" + ajaxdata.data[client_i].name + "</option>");
+    }
+    //所有商品
+    ajaxGet("/commodity/findModel");
+    for (var commodity_i = 0; commodity_i < ajaxdata.data.length; commodity_i++) {
+        $("#commodity").append("<option value=\"" + ajaxdata.data[commodity_i].id + "\">" + ajaxdata.data[commodity_i].model + "</option>");
+    }
+    /**************初始化表单内容 end**************/
+    layui.use(['form', 'layedit', 'laydate'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , laydate = layui.laydate;
+
+        //日期
+        laydate.render({
+            elem: '#date'
+        });
+        laydate.render({
+            elem: '#date1'
+        });
+
+        //创建一个编辑器
+        var editIndex = layedit.build('LAY_demo_editor');
+
+        //自定义验证规则
+        form.verify({
+            title: function (value) {
+                if (value.length < 5) {
+                    return '标题至少得5个字符啊';
+                }
+            }
+            , pass: [
+                /^[\S]{6,12}$/
+                , '密码必须6到12位，且不能出现空格'
+            ]
+            , checkpass: function (value) {
+                if (value !== document.getElementsByName("password")[0].value) {
+                    return '两次密码输入不一致';
+                }
+            }
+            , content: function (value) {
+                layedit.sync(editIndex);
+            }
+        });
+
+        //监听指定开关
+        form.on('switch(switchTest)', function (data) {
+            layer.msg('开关checked：' + (this.checked ? 'true' : 'false'), {
+                offset: '6px'
+            });
+            layer.tips('温馨提示：请注意开关状态的文字可以随意定义，而不仅仅是ON|OFF', data.othis)
+        });
+
+        //监听提交
+        form.on('submit(demo1)', function (data) {
+            var se = confirm("请确认提交：");
+            if (se === true) {
+                var fin_data = {order: data.field, orderContents: table_data};
+                ajaxPostByJson("/order/add", JSON.stringify(fin_data));
+                if (ajaxdata !== {}) {
+                    if (ajaxdata.code !== "0") {
+                        alert(ajaxdata.msg);
+                    } else {
+                        window.location.href = ip + "/html/order-index.html";
+                    }
+                }
+                return false;
+            } else {
+                return false;
+            }
+        });
+
+
+    });
+
+    var table;
+    layui.use('table', function () {
+        table = layui.table;
+
+        //第一个实例
+        table.render({
+            elem: '#date'
+            , toolbar: '#toolbarDemo'
+            , url: ip + '/orderContent/findOrderData?orderNumber=' + orderNumber
+            , totalRow: true//开启合计
+            , cols: [[ //表头
+                {type: 'numbers', field: 'rowNo'}
+                , {
+                    field: 'commodityName',
+                    title: '商品',
+                    width: 200,
+                    totalRowText: '合计'
+                }
+                , {field: 'color', title: '颜色', width: 150}
+                , {field: 'size', title: '尺寸', width: 150}
+                , {field: 'num', title: '数量', width: 130, edit: 'number'}
+                , {field: 'price', title: '单价(元/件)', width: 200, edit: 'number'}
+                , {field: 'totalPrice', title: '总价', width: 350, totalRow: true, edit: 'number'}
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150}
+            ]]
+            , done: function (res, curr, count) {
+                table_data = res.data;
+                var price_total = 0;
+                for (var num = 0; num < res.data.length; num++) {
+                    price_total = floatAdd(price_total, res.data[num].totalPrice)
+                }
+                $("#price").val(price_total);
+            }
+
+        });
+        //监听单元格编辑
+        table.on('edit(test)', function (obj) {
+            var value = obj.value //得到修改后的值
+                , data = obj.data //得到所在行所有键值
+                , field = obj.field; //得到字段
+            ajaxPostByJson("/orderContent/updOrderData2", JSON.stringify(data));
+
+            table.reload("date");
+        });
+
+
+        //头工具栏事件
+        table.on('toolbar(test)', function (obj) {
+            if (obj.event === 'getCheckData') {
+                layer.open({
+                    type: 1,
+                    title: "添加订单商品",
+                    closeBtn: false,
+                    shift: 2,
+                    area: ['500px', '500px'],
+                    shadeClose: true,
+                    // btn: ['新增', '取消'],
+                    // btnAlign: 'c',
+                    content: $("#add-main"),
+                    success: function (layero, index) {
+                    },
+                    yes: function () {
+                    }
+                });
+                return false;
+            }
+        });
+
+        //监听行工具事件
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            //console.log(obj)
+            if (obj.event === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    obj.del();
+                    console.info(obj.data);
+                    ajaxPostByJson("/orderContent/delOrderData2", JSON.stringify(data));
+                    layer.close(index);
+                    table.reload("date");
+                });
+            } else if (obj.event === 'edit') {
+                layer.prompt({
+                    formType: 2
+                    , value: data.email
+                }, function (value, index) {
+                    obj.update({
+                        email: value
+                    });
+                    layer.close(index);
+                });
+            }
+            return false;
+
+        });
+
+    });
+
+</script>
+<!--隐藏表单js-->
+<script type="text/javascript">
+    var selectedText;
+    // layui.config({
+    //     base: '/layui/LayuiExtend/js/modules/'
+    // }).extend({
+    //     numinput: 'numinput/numinput'
+    // }).use(['form', 'numinput'], function () {
+    //     var form = layui.form, numinp = layui.numinput;
+    //     numinp.init({
+    //         // 123：123键置顶, 789：789键置顶
+    //         topBtns: 123,
+    //         // 右侧功能按钮
+    //         rightBtns: true,
+    //         // 监听键盘事件
+    //         listening: true,
+    //         // 批量配置默认小数精确度
+    //         defaultPrec: -1
+    //
+    //     });
+    // });
+    layui.use(['layer', 'form'], function () {
+        var layer = layui.layer,
+            $ = layui.jquery,
+            form = layui.form;
+        //提交监听事件
+        form.on('submit(save)', function (data) {
+            data.field.orderNumber = orderNumber;
+            // params = data.field;
+            // params.id = params.commodity;
+            // params.commodity = selectedText;
+            ajaxPostByJson("/orderContent/saveOrderData2", JSON.stringify(data.field));
+            if (ajaxdata !== {}) {
+                if (ajaxdata.code !== "0") {
+                    alert(ajaxdata.msg);
+                } else {
+                    CloseWin();
+                }
+            }
+            $("#add-form")[0].reset();
+            table.reload("date");
+            return false;
+
+        });
+
+        form.on('select(commodity)', function (data) {
+            /**************初始化表单内容 start**************/
+            selectedText = data.elem[data.elem.selectedIndex].text;
+            $("#commodity-name").val(selectedText);
+            //刷新商品的信息
+            ajaxGet("/commodity/findById?id=" + data.value);
+            //更新颜色
+            var common_Select = "<option value=\"\">直接选择或搜索选择</option>";
+            var color_html = common_Select;
+            for (var color_i = 0; color_i < ajaxdata.data.color.split("|").length; color_i++) {
+                color_html += "<option value=\"" + ajaxdata.data.color.split("|")[color_i] + "\">" + ajaxdata.data.color.split("|")[color_i] + "</option>";
+            }
+            $('form').find('select[name=color]').html(color_html).parent().show();
+            //更新尺寸
+            ajaxGet("/size/findSize?name=" + ajaxdata.data.sizeType);
+            var size_html = common_Select;
+            for (var size_i = 0; size_i < ajaxdata.data.length; size_i++) {
+                size_html += "<option value=\"" + ajaxdata.data[size_i] + "\">" + ajaxdata.data[size_i] + "</option>";
+            }
+            $('form').find('select[name=size]').html(size_html).parent().show();
+            form.render();
+            /**************初始化表单内容 end **************/
+        });
+
+    });
+
+
+    //关闭页面
+    function CloseWin() {
+        layer.close(layer.index); //再执行关闭
+    }
+
+    $("#num").change(function () {
+        GetTotalPrice();
+    });
+    $("#totalPrice").change(function () {
+        GetDanPrice()
+    });
+    $("#dam_piece").change(function () {
+        GetTotalPrice();
+    });
+
+    //计算总额
+    function GetTotalPrice() {
+        if ($("#num").val() !== "" && $("#dam_piece").val() !== "") {
+            $("#totalPrice").val(parseFloat($("#num").val()) * parseFloat($("#dam_piece").val()).toFixed(2));
+        }
+    }
+
+    //计算单价
+    function GetDanPrice() {
+        if ($("#num").val() !== "" && $("#totalPrice").val() !== "") {
+            $("#dam_piece").val((parseFloat($("#totalPrice").val()) / parseFloat($("#num").val())).toFixed(2));
+        }
+    }
+
+    //重置商品
+    $("#reset").click(function () {
+        ajaxGet("/orderContent/reSetOrderData2?orderNumber=" + orderNumber);
+        table.reload("date");
+    });
+
+</script>
+</body>
+</html>

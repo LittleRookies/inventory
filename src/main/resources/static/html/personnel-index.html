@@ -1,0 +1,96 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>库存管理系统</title>
+    <link rel="stylesheet" href="../layui/css/layui.css" media="all">
+    <link rel="import" href="navigation.html">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin" id="data">
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;">
+            <table class="layui-hide" id="person-table" lay-filter="person-table"></table>
+        </div>
+    </div>
+</div>
+<script src="../layui/layui.js"></script>
+<script src="../js/vue/vue.min.js"></script>
+<script src="../js/Config.js"></script>
+<script src="../js/jquery/jquery.js"></script>
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="addDate">新增人员</button>
+    </div>
+</script>
+
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script>
+    layui.use('table', function () {
+        var table = layui.table;
+
+        table.render({
+            elem: '#person-table'
+            , url: ip + "/user/findAll"
+            , method: "post"
+            , toolbar: '#toolbarDemo'
+            , title: '用户数据表'
+            , contentType: "application/json;charset-UTF-8"
+            , cols: [[
+                {field: 'name', title: '用户名', width: 120}
+                , {field: 'username', title: '账号', width: 100}
+                , {
+                    field: 'email', title: '邮箱', width: 300, templet: function (res) {
+                        return '<em>' + res.email + '</em>'
+                    }
+                }
+                , {field: 'telephone', title: '手机号', width: 300}
+                , {field: 'role', title: '角色', width: 80}
+                , {field: 'founder', title: '创建人', width: 120}
+                , {field: 'lastTime', title: '最后登陆时间', sort: true}
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150}
+            ]]
+            , page: true
+        });
+
+        //头工具栏事件
+        table.on('toolbar(person-table)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            if (obj.event === 'addDate') {
+                // var data = checkStatus.data;
+                // layer.alert(JSON.stringify(data));
+                window.location.href = ip + "/html/personnel-add.html";
+            }
+        });
+
+        //监听行工具事件
+        table.on('tool(person-table)', function (obj) {
+            var data = obj.data;
+            //console.log(obj)
+            if (obj.event === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    layer.close(index);
+                    ajaxPost("/user/delete", data);
+                    if (ajaxdata.code === "0") {
+                        obj.del();
+                    } else {
+                        layer.alert(ajaxdata.msg);
+                    }
+                });
+            } else if (obj.event === 'edit') {
+                window.location.href = ip + "/html/personnel-update.html?username=" + data.username;
+            }
+
+        });
+    });
+</script>
+
+</body>
+</html>

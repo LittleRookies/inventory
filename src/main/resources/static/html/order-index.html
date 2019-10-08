@@ -1,0 +1,132 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>库存管理系统</title>
+    <link rel="stylesheet" href="../layui/css/layui.css" media="all">
+    <link rel="import" href="navigation.html">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin" id="data">
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;">
+            <div class="demoTable">
+                搜索订单：
+                <div class="layui-inline">
+                    <input class="layui-input" name="name" id="demoReload" autocomplete="off">
+                </div>
+                <button class="layui-btn" data-type="reload">搜索</button>
+            </div>
+            <table class="layui-hide" id="person-table" lay-filter="person-table"></table>
+        </div>
+    </div>
+</div>
+<script src="../layui/layui.js"></script>
+<script src="../js/vue/vue.min.js"></script>
+<script src="../js/Config.js"></script>
+<script src="../js/jquery/jquery.js"></script>
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="addDate">新增订单</button>
+    </div>
+</script>
+
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="view">查看</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script>
+    layui.use('table', function () {
+        var table = layui.table;
+
+        table.render({
+            elem: '#person-table'
+            , url: ip + "/order/findAll"
+            , method: "post"
+            , toolbar: '#toolbarDemo'
+            , title: '用户数据表'
+            , id: 'testReload'
+            , contentType: "application/json;charset-UTF-8"
+            , cols: [[
+                {field: 'orderNumber', title: '订单编号', width: 200}
+                , {field: 'client', title: '客户', width: 150}
+                , {field: 'payDirection', title: '支付方向', width: 150}
+                , {field: 'time', title: '修改时间', width: 300}
+                , {field: 'status', title: '当前状态', width: 100}
+                , {field: 'price', title: '总价', width: 100}
+                , {field: 'remarks', title: '备注', sort: true}
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 150}
+            ]]
+            , page: true
+        });
+
+        //头工具栏事件
+        table.on('toolbar(person-table)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            if (obj.event === 'addDate') {
+                // var data = checkStatus.data;
+                // layer.alert(JSON.stringify(data));
+                window.location.href = ip + "/html/order-add.html";
+            } else if (obj.event === 'addSize') {
+                // var data = checkStatus.data;
+                // layer.alert(JSON.stringify(data));
+                window.location.href = ip + "/html/size-add.html";
+            }
+        });
+
+        //监听行工具事件
+        table.on('tool(person-table)', function (obj) {
+            var data = obj.data;
+            //console.log(obj)
+            if (obj.event === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    layer.close(index);
+                    ajaxGet("/commodity/delete?id=" + data.id);
+                    if (ajaxdata.code === "0") {
+                        obj.del();
+                    } else {
+                        layer.alert(ajaxdata.msg);
+                    }
+                });
+            } else if (obj.event === 'edit') {
+                window.location.href = ip + "/html/commodity-update.html?id=" + data.id;
+            } else if (obj.event === 'view') {
+                window.location.href = ip + "/html/commodity-view.html?id=" + data.id;
+            }
+
+        });
+
+        var active = {
+            reload: function () {
+                var demoReload = $('#demoReload');
+
+                //执行重载
+                table.reload('testReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        key: {
+                            model: demoReload.val()
+                        }
+                    }
+                }, 'data');
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+
+</script>
+
+</body>
+</html>

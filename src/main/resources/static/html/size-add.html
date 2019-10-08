@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>库存管理系统</title>
+    <link rel="stylesheet" href="../layui/css/layui.css" media="all">
+    <link rel="import" href="navigation.html">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin" id="data">
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;">
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                <legend>新增尺寸规格</legend>
+            </fieldset>
+            <form class="layui-form" action="" method="post">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">选择尺寸规格</label>
+                    <div class="layui-input-inline">
+                        <div class="layui-input-inline">
+                            <select name="sizeType" lay-verify="required" lay-filter="sizeSelect" lay-search=""
+                                    id="size_type">
+                                <option value="">直接选择或搜索选择</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item" id="isHidden">
+                    <label class="layui-form-label">名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="name" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button type="button" class="layui-btn layui-btn-sm layui-btn-radius layui-btn-normal"
+                                lay-submit=""
+                                lay-filter="addInpute">
+                            新增尺寸
+                        </button>
+                    </div>
+                </div>
+                <div id="addInpute">
+
+                </div>
+                <input type="hidden" name="IsNew">
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="../layui/layui.js"></script>
+<script src="../js/vue/vue.min.js"></script>
+<script src="../js/Config.js"></script>
+<script src="../js/sha256.js"></script>
+<script src="../js/jquery/jquery.js"></script>
+<script>
+    /**************初始化下拉框 start**************/
+    ajaxGet("/size/findAll");
+    for (var size_i = 0; size_i < ajaxdata.data.length; size_i++) {
+        $("#size_type").append("<option value=\"" + ajaxdata.data[size_i] + "\">" + ajaxdata.data[size_i] + "</option>");
+    }
+    $("#size_type").append("<option value=\"新增自定义\">新增自定义</option>");
+    /**************初始化下拉框 end**************/
+
+    layui.use(['form', 'layedit', 'laydate'], function () {
+        var form = layui.form
+            , layer = layui.layer
+            , layedit = layui.layedit
+            , laydate = layui.laydate;
+
+        //日期
+        laydate.render({
+            elem: '#date'
+        });
+        laydate.render({
+            elem: '#date1'
+        });
+
+        //创建一个编辑器
+        var editIndex = layedit.build('LAY_demo_editor');
+
+        //监听select选项
+        form.on('select(sizeSelect)', function (data) {
+            //修改尺寸
+            $("div[name='size-input']").remove();
+            if (data.value !== "新增自定义") {
+                $('input[name="name"]').val(data.value);
+                $('#isHidden').hide();//隐藏名称栏
+                ajaxGet("/size/findSize?name=" + data.value);
+                for (var size_j = 0; size_j < ajaxdata.data.length; size_j++) {
+                    addInpute(ajaxdata.data[size_j]);
+                }
+                $('input[name="IsNew"]').val("N");
+            } else {
+                $('input[name="name"]').val("");
+                $('#isHidden').show();//显示名称栏
+                $('input[name="IsNew"]').val("Y");
+                addInpute("");
+            }
+
+
+        });
+
+        //自定义验证规则
+        form.verify({
+            title: function (value) {
+                if (value.length < 5) {
+                    return '标题至少得5个字符啊';
+                }
+            }
+        });
+
+        //提交
+        form.on('submit(demo1)', function (data) {
+            var size_list = [];
+            for (var doc_i = 0; doc_i < document.getElementsByName("size").length; doc_i++) {
+                size_list[doc_i] = document.getElementsByName("size")[doc_i].value;
+            }
+            data.field.size = size_list;
+            var se = confirm("请确认提交：");
+            if (se === true) {
+                ajaxPostByJson("/size/save", JSON.stringify(data.field));
+
+                if (ajaxdata !== {}) {
+                    if (ajaxdata.code !== "0") {
+                        alert(ajaxdata.msg);
+                    } else {
+                        window.location.href = ip + "/html/commodity-index.html";
+                    }
+                }
+
+
+                return false;
+
+
+            } else {
+                return false;
+            }
+        });
+        //增加元素
+        form.on('submit(addInpute)', function (data) {
+            addInpute("");
+        });
+
+
+    });
+
+
+    //检查密码是否相同
+    function checkPwd() {
+        var pwd = document.getElementsByName("password")[0].value;
+        var check_pwd = document.getElementsByName("check_password")[0].value;
+        if (pwd !== check_pwd) {
+            document.getElementById("check-warning").style.visibility = "visible";//显示
+        } else {
+            document.getElementById("check-warning").style.visibility = "hidden";//隐藏
+        }
+    }
+
+    function addInpute(data) {
+        var addInpute = `<div class="layui-form-item" name="size-input">
+                    <label class="layui-form-label">尺寸</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="size" autocomplete="off" class="layui-input" value='${data}'>
+                    </div>
+                     <div class="layui-input-inline">
+                       <img src="../img/x.png" width="10px" height="10px" onclick="deleteInpute(this)">
+                    </div>
+                </div>`;
+        $("#addInpute").append(addInpute);
+    }
+
+    function deleteInpute(obj) {
+        obj.parentNode.parentNode.remove();
+    }
+</script>
+
+</body>
+</html>

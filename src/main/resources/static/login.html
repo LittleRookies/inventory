@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>登陆</title>
+    <meta name="description" content="particles.js is a lightweight JavaScript library for creating particles.">
+    <meta name="author" content="Vincent Garreau"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" media="screen" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/reset.css"/>
+</head>
+<body>
+
+<div id="particles-js">
+    <div class="login">
+        <div class="login-top">
+            登录
+        </div>
+        <div class="login-center clearfix">
+            <div class="login-center-img"><img src="img/name.png"/></div>
+            <div class="login-center-input">
+                <input id="username" type="text" name="username" value="" placeholder="请输入您的用户名"
+                       onfocus="this.placeholder=''"
+                       onblur="this.placeholder='请输入您的用户名'"/>
+                <div class="login-center-input-text">用户名</div>
+            </div>
+        </div>
+        <div class="login-center clearfix">
+            <div class="login-center-img"><img src="img/password.png"/></div>
+            <div class="login-center-input">
+                <input id="password" type="password" name="password" value="" placeholder="请输入您的密码"
+                       onfocus="this.placeholder=''"
+                       onblur="this.placeholder='请输入您的密码'"/>
+                <div class="login-center-input-text">密码</div>
+            </div>
+        </div>
+        <div class="login-button">
+            登录
+        </div>
+    </div>
+    <div class="sk-rotating-plane"></div>
+</div>
+
+<!-- scripts -->
+<script src="js/particles.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/Config.js"></script>
+<script src="js/sha256.js"></script>
+<script src="js/jquery/jquery.js"></script>
+<script type="text/javascript">
+    function hasClass(elem, cls) {
+        cls = cls || '';
+        if (cls.replace(/\s/g, '').length === 0) return false; //当cls没有参数时，返回false
+        return new RegExp(' ' + cls + ' ').test(' ' + elem.className + ' ');
+    }
+
+    function addClass(ele, cls) {
+        if (!hasClass(ele, cls)) {
+            ele.className = ele.className === '' ? cls : ele.className + ' ' + cls;
+        }
+    }
+
+    function removeClass(ele, cls) {
+        if (hasClass(ele, cls)) {
+            var newClass = ' ' + ele.className.replace(/[\t\r\n]/g, '') + ' ';
+            while (newClass.indexOf(' ' + cls + ' ') >= 0) {
+                newClass = newClass.replace(' ' + cls + ' ', ' ');
+            }
+            ele.className = newClass.replace(/^\s+|\s+$/g, '');
+        }
+    }
+
+    document.querySelector(".login-button").onclick = function () {
+        var username = document.getElementById("username").value;
+        var password = sha256(document.getElementById("password").value);
+        $.ajax({
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: ip + "/logining",
+            // data: $('#form1').serialize(),
+            data: "username=" + username + "&password=" + password,
+            success: function (result) {
+                if (result.code !== "200") {
+                    alert(result.msg);
+                } else {
+                    localStorage.setItem("name", result.msg);
+                    window.location.href = ip + "/html/index.html";
+                }
+            }
+            ,
+            error: function () {
+                alert("无法请求服务！");
+            }
+        })
+        ;
+    }
+</script>
+</body>
+</html>
