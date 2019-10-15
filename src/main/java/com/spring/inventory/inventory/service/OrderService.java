@@ -80,8 +80,13 @@ public class OrderService {
     @Transactional
     public AjaxResponseBody add(OrderAndContent orderAndContent, String founder) {
         logger.info("add-----" + JSON.toJSONString(orderAndContent));
-        orderAndContent.getOrder().setStatus(DictionaryUtil.statusZ);
+        if (orderAndContent.getOrder().getStatus() == null || "".equals(orderAndContent.getOrder().getStatus())) {
+            orderAndContent.getOrder().setStatus(DictionaryUtil.statusN);
+        }
         orderAndContent.getOrder().setFounder(founder);
+        if (!orderAndContent.getOrder().getStatus().equals(DictionaryUtil.statusN)) {
+            return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, "该订单已经发出或已经完成无法修改！");
+        }
         orderRepository.save(orderAndContent.getOrder());
         orderContentRepository.deleteAllByOrderNumber(orderAndContent.getOrder().getOrderNumber());
         orderContentRepository.saveAll(orderAndContent.getOrderContents());
@@ -93,7 +98,20 @@ public class OrderService {
     public AjaxResponseBody del(String orderNumber, String status_people) {
         logger.info("del-----orderNumber={}", orderNumber);
         Order order = orderRepository.findFirstByOrderNumber(orderNumber);
+        if (!order.getStatus().equals(DictionaryUtil.statusN)){
+            return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode,"订单已经发货或已经执行后续操作，无法删除！");
+        }
         order.setStatus(DictionaryUtil.statusD);
+        order.setStatusPeople(status_people);
+        orderRepository.save(order);
+        return ResponseBodyUtil.successAjax();
+    }
+
+    @Transactional
+    public AjaxResponseBody change(String orderNumber, String status_people) {
+        logger.info("change-----orderNumber={}", orderNumber);
+        Order order = orderRepository.findFirstByOrderNumber(orderNumber);
+        order.setStatus(DictionaryUtil.statusZ);
         order.setStatusPeople(status_people);
         orderRepository.save(order);
         return ResponseBodyUtil.successAjax();

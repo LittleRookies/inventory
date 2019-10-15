@@ -20,7 +20,7 @@ public class OrderContentController {
      * @param orderNumber
      * @return
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @GetMapping("/findOrderData")
     public AjaxResponseBody findOrderData(String orderNumber) {
         return orderContentService.findOrderData(orderNumber);
@@ -32,7 +32,7 @@ public class OrderContentController {
      * @param orderNumber
      * @return
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @GetMapping("/findOrderData2")
     public AjaxResponseBody findOrderData2(String orderNumber) {
         return orderContentService.findOrderDataByRedis(orderNumber);

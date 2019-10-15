@@ -34,7 +34,7 @@ public class CommodityController {
      * @param map
      * @returnø
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @PostMapping("/findAll")
     public AjaxResponseBody findAll(@RequestBody Map map) {
         Integer page = (Integer) map.get("page");
@@ -100,7 +100,7 @@ public class CommodityController {
      * @param id
      * @return
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @GetMapping(value = "/findById")
     public AjaxResponseBody findById(Integer id) {
         return commodityService.findById(id);
@@ -111,7 +111,7 @@ public class CommodityController {
      *
      * @return
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @GetMapping(value = "/findModel")
     public AjaxResponseBody findModel() {
         return commodityService.findAllmodel();

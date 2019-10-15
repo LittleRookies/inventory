@@ -19,7 +19,7 @@ public class LabelController {
      *
      * @return
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @GetMapping(value = "/findHot")
     public AjaxResponseBody findHot() {
         return labelService.findAllLimit();

@@ -39,6 +39,9 @@
     <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
+<script type="text/html" id="barDemo2">
+    <a class="layui-btn layui-btn-xs" lay-event="confirm">确认</a>
+</script>
 
 <script>
     layui.use('table', function () {
@@ -56,10 +59,11 @@
                 {field: 'orderNumber', title: '订单编号', width: 200}
                 , {field: 'client', title: '客户', width: 150}
                 , {field: 'payDirection', title: '支付方向', width: 150}
-                , {field: 'time', title: '修改时间', width: 300}
+                , {field: 'time', title: '修改时间', width: 200}
                 , {field: 'status', title: '当前状态', width: 100}
-                , {field: 'price', title: '总价（元）', width: 100}
-                , {field: 'remarks', title: '备注', sort: true}
+                , {field: 'price', title: '总价（元）', width: 120, sort: true}
+                , {field: 'remarks', title: '备注'}
+                , {field: 'left', title: '', toolbar: '#barDemo2', width: 70}
                 , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 180}
             ]]
             , page: true
@@ -97,6 +101,17 @@
                 window.location.href = ip + "/html/order-update.html?orderNumber=" + data.orderNumber;
             } else if (obj.event === 'view') {
                 window.location.href = ip + "/html/order-view.html?orderNumber=" + data.orderNumber;
+            } else if (obj.event === 'confirm') {
+                layer.confirm('订单货物已发出？', function (index) {
+                    layer.close(index);
+                    ajaxGet("/order/change?orderNumber=" + data.orderNumber);
+                    if (ajaxdata.code === "0") {
+                        table.reload("testReload");
+                        // obj.del();
+                    } else {
+                        layer.alert(ajaxdata.msg);
+                    }
+                });
             }
 
         });

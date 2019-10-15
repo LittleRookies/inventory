@@ -38,7 +38,7 @@ public class ClientController {
      * @param map
      * @returnø
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @PostMapping("/findAll")
     public AjaxResponseBody findAll(@RequestBody Map map) {
         Integer page = (Integer) map.get("page");
@@ -53,7 +53,7 @@ public class ClientController {
      *
      * @returnø
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @GetMapping("/findAllNoPage")
     public AjaxResponseBody findAllNoPage() {
         return clientService.findAllNoPage();
@@ -77,7 +77,7 @@ public class ClientController {
      * @param id
      * @return
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @GetMapping("/findByUsername")
     public AjaxResponseBody findByUsername(Integer id) {
         return clientService.findById(id);

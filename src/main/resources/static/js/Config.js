@@ -197,12 +197,16 @@ function floatDiv(arg1, arg2) {
 
 //状态栏
 function statusButton(status) {
-    if (status === "Z") {
-        return "<button class=\"layui-btn layui-btn-radius\" disabled>进行中</button>\n";
+    if (status === "N") {
+        return "<button class=\"layui-btn layui-btn-radius\" disabled>待发货</button>\n";
     } else if (status === "D") {
         return "<button type=\"button\" class=\"layui-btn layui-btn-danger layui-btn-radius\">已删除</button>"
     } else if (status === "Y") {
         return "<button type=\"button\" class=\"layui-btn layui-btn-normal layui-btn-radius\">已完成</button>\n"
+    } else if (status === "Z") {
+        return "<button type=\"button\" class=\"layui-btn layui-btn-warm layui-btn-radius\">进行中</button>\n"
+    } else if (status === "R") {
+        return "<button type=\"button\" class=\"layui-btn layui-btn-primary layui-btn-radius\">确认收货</button>\n"
     }
 }
 

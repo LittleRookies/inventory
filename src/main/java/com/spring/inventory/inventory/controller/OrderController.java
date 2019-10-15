@@ -22,7 +22,7 @@ public class OrderController {
      * @param map
      * @returnø
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @PostMapping("/findAll")
     public AjaxResponseBody findAll(@RequestBody Map map) {
         Integer page = (Integer) map.get("page");
@@ -39,14 +39,14 @@ public class OrderController {
      * @param orderNumber
      * @returnø
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @GetMapping("/find")
     public AjaxResponseBody find(String orderNumber) {
         return orderService.find(orderNumber);
     }
 
     /**
-     * 查询订单(用于修改修改)
+     * 查询订单(用于修改)
      *
      * @param orderNumber
      * @returnø
@@ -86,10 +86,22 @@ public class OrderController {
      *
      * @returnø
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @GetMapping("/findOrderNumber")
     public AjaxResponseBody findOrderNumber() {
         return orderService.findOrderNumber();
+    }
+
+    /**
+     * 修改订单状态
+     *
+     * @param orderNumber
+     * @returnø
+     */
+    @PreAuthorize("hasAnyAuthority('root')")
+    @GetMapping("/change")
+    public AjaxResponseBody change(String orderNumber, HttpServletRequest request) {
+        return orderService.change(orderNumber, request.getUserPrincipal().getName());
     }
 
 

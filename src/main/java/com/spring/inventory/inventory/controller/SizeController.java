@@ -19,7 +19,7 @@ public class SizeController {
      *
      * @return
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @GetMapping("/findAll")
     public AjaxResponseBody findAll() {
         return sizeService.findAll();
@@ -31,7 +31,7 @@ public class SizeController {
      * @param name
      * @return
      */
-    @PreAuthorize("hasAnyAuthority('root')")
+    @PreAuthorize("hasAnyAuthority('root','role')")
     @GetMapping("/findSize")
     public AjaxResponseBody findSize(String name) {
         return sizeService.find(name);
