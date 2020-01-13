@@ -24,6 +24,7 @@ public class Order {
     private String statusPeople;
     private String founder;
     private BigDecimal price;
+    private BigDecimal payPrice;
 
     @Id
     @Column(name = "orderNumber")
@@ -129,25 +130,36 @@ public class Order {
         this.price = price;
     }
 
+    @Basic
+    @Column(name = "pay_price")
+    public BigDecimal getPayPrice() {
+        return payPrice;
+    }
+
+    public void setPayPrice(BigDecimal payPrice) {
+        this.payPrice = payPrice;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Order order = (Order) o;
-        return Objects.equals(orderNumber, order.orderNumber) &&
-                Objects.equals(client, order.client) &&
-                Objects.equals(payDirection, order.payDirection) &&
-                Objects.equals(remarks, order.remarks) &&
-                Objects.equals(time, order.time) &&
-                Objects.equals(timestamp, order.timestamp) &&
-                Objects.equals(status, order.status) &&
-                Objects.equals(statusPeople, order.statusPeople) &&
-                Objects.equals(founder, order.founder) &&
-                Objects.equals(price, order.price);
+        Order orders = (Order) o;
+        return Objects.equals(orderNumber, orders.orderNumber) &&
+                Objects.equals(client, orders.client) &&
+                Objects.equals(payDirection, orders.payDirection) &&
+                Objects.equals(remarks, orders.remarks) &&
+                Objects.equals(time, orders.time) &&
+                Objects.equals(timestamp, orders.timestamp) &&
+                Objects.equals(status, orders.status) &&
+                Objects.equals(statusPeople, orders.statusPeople) &&
+                Objects.equals(founder, orders.founder) &&
+                Objects.equals(price, orders.price) &&
+                Objects.equals(payPrice, orders.payPrice);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(orderNumber, client, payDirection, remarks, time, timestamp, status, statusPeople, founder, price);
+        return Objects.hash(orderNumber, client, payDirection, remarks, time, timestamp, status, statusPeople, founder, price, payPrice);
     }
 }

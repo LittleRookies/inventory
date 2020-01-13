@@ -119,7 +119,8 @@ new Vue({
         index: ip + "/html/index.html",
         client: ip + "/html/client-index.html",
         commodity: ip + "/html/commodity-index.html",
-        order: ip + "/html/order-index.html"
+        order: ip + "/html/order-index.html",
+        transaction: ip + "/html/transaction-index.html"
     }
 });
 
