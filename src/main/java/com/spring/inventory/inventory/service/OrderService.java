@@ -6,6 +6,7 @@ import com.spring.inventory.inventory.bean.Order;
 import com.spring.inventory.inventory.bean.OrderAndContent;
 import com.spring.inventory.inventory.dao.OrderContentRepository;
 import com.spring.inventory.inventory.dao.OrderRepository;
+import com.spring.inventory.inventory.dao.TransactionRepository;
 import com.spring.inventory.inventory.util.DictionaryUtil;
 import com.spring.inventory.inventory.util.ResponseBodyUtil;
 import com.spring.inventory.inventory.util.TimeUtil;
@@ -29,9 +30,11 @@ public class OrderService {
     @Autowired
     private OrderContentRepository orderContentRepository;
 
-
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     private final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
@@ -52,6 +55,27 @@ public class OrderService {
         return ResponseBodyUtil.responseBodyByPage(orders, mapList, "");
     }
 
+    public AjaxResponseBody findAllByStatus(Integer page, Integer size, String orderNumber) {
+        logger.info("findAllByStatus-----page={},size={},orderNumber={}", page, size, orderNumber);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Map> orders = orderRepository.findAllByStatusAndOrderNumberLike(pageable, new ArrayList<String>() {{
+            this.add(DictionaryUtil.statusY);
+            this.add(DictionaryUtil.statusZ);
+            this.add(DictionaryUtil.statusR);
+        }}, orderNumber);
+        List<Map> content = orders.getContent();
+        List<Map> mapList = new ArrayList<>();
+        for (Map order : content) {
+            //转换为看查看数据
+            Map map = new HashMap(order);
+            map.put("payDirection", DictionaryUtil.payDirectionDic(String.valueOf(order.get("payDirection"))));
+            map.put("status", DictionaryUtil.statusDic(String.valueOf(order.get("status"))));
+            mapList.add(map);
+
+        }
+        return ResponseBodyUtil.responseBodyByPage(orders, mapList, "");
+    }
+
     public AjaxResponseBody find(String orderNumber) {
         logger.info("find-----orderNumber={}", orderNumber);
         Order firstByOrderNumber = orderRepository.findFirstByOrderNumber(orderNumber);
@@ -59,9 +83,31 @@ public class OrderService {
     }
 
     public AjaxResponseBody findUpdate(String orderNumber) {
-        logger.info("find-----orderNumber={}", orderNumber);
+        logger.info("findUpdate-----orderNumber={}", orderNumber);
         Order firstByOrderNumber = orderRepository.findFirstByOrderNumber(orderNumber);
         List<Map> allByOrderNumber = orderContentRepository.findAllByOrderNumber(orderNumber);
+        if (allByOrderNumber.size() != 0) {
+            List<Map> list = new ArrayList<>();
+            redisTemplate.delete(orderNumber);
+            for (Map map : allByOrderNumber) {
+                Map newMap = new LinkedHashMap(map);
+                newMap.put("totalPrice", String.valueOf(map.get("total_price")));
+                newMap.remove("total_price");
+                newMap.put("price", String.valueOf(map.get("price")));
+                list.add(newMap);
+            }
+            redisTemplate.opsForValue().set(orderNumber, list);
+        }
+        return ResponseBodyUtil.successAjax(firstByOrderNumber);
+    }
+
+    public AjaxResponseBody findUpdateOnTransaction(String orderNumber) {
+        logger.info("findUpdateOnTransaction-----orderNumber={}", orderNumber);
+        Order firstByOrderNumber = orderRepository.findFirstByOrderNumber(orderNumber);
+        List<Map> allByOrderNumber = transactionRepository.findAllByOrderNumber(orderNumber);
+        if (allByOrderNumber.size() == 0) {
+            allByOrderNumber = orderContentRepository.findAllByOrderNumber(orderNumber);
+        }
         if (allByOrderNumber.size() != 0) {
             List<Map> list = new ArrayList<>();
             redisTemplate.delete(orderNumber);
@@ -98,8 +144,8 @@ public class OrderService {
     public AjaxResponseBody del(String orderNumber, String status_people) {
         logger.info("del-----orderNumber={}", orderNumber);
         Order order = orderRepository.findFirstByOrderNumber(orderNumber);
-        if (!order.getStatus().equals(DictionaryUtil.statusN)){
-            return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode,"订单已经发货或已经执行后续操作，无法删除！");
+        if (!order.getStatus().equals(DictionaryUtil.statusN)) {
+            return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, "订单已经发货或已经执行后续操作，无法删除！");
         }
         order.setStatus(DictionaryUtil.statusD);
         order.setStatusPeople(status_people);

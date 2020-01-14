@@ -36,11 +36,7 @@
 
 <script type="text/html" id="barDemo">
     <a class="layui-btn layui-btn-xs" lay-event="view">查看</a>
-    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-</script>
-<script type="text/html" id="barDemo2">
-    <a class="layui-btn layui-btn-xs" lay-event="sendOrder">确认</a>
+    <a class="layui-btn layui-btn-xs" lay-event="edit">确认</a>
 </script>
 
 <script>
@@ -49,7 +45,7 @@
 
         table.render({
             elem: '#person-table'
-            , url: ip + "/order/findAll"
+            , url: ip + "/order/findAllByStatus"
             , method: "post"
             , toolbar: '#toolbarDemo'
             , title: '用户数据表'
@@ -63,8 +59,7 @@
                 , {field: 'status', title: '当前状态', width: 100}
                 , {field: 'price', title: '总价（元）', width: 120, sort: true}
                 , {field: 'remarks', title: '备注'}
-                , {field: 'left', title: '', toolbar: '#barDemo2', width: 70}
-                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 180}
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 260}
             ]]
             , page: true
         });
@@ -98,9 +93,9 @@
                     }
                 });
             } else if (obj.event === 'edit') {
-                window.location.href = ip + "/html/order-update.html?orderNumber=" + data.orderNumber;
+                window.location.href = ip + "/html/order-confirm.html?orderNumber=" + data.orderNumber;
             } else if (obj.event === 'view') {
-                window.location.href = ip + "/html/order-view.html?orderNumber=" + data.orderNumber;
+                window.location.href = ip + "/html/transaction-view.html?orderNumber=" + data.orderNumber;
             } else if (obj.event === 'sendOrder') {
                 if (data.status === '待发货') {
                     layer.confirm('订单货物已发出？', function (index) {

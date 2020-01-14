@@ -32,6 +32,22 @@ public class OrderController {
         return orderService.findAll(page, size, key);
     }
 
+    /**
+     * 查询所有状态在"已发货"之后订单
+     *
+     * @param map
+     * @returnø
+     */
+    @PreAuthorize("hasAnyAuthority('root','role')")
+    @PostMapping("/findAllByStatus")
+    public AjaxResponseBody findAllByStatus(@RequestBody Map map) {
+        Integer page = (Integer) map.get("page");
+        Integer size = (Integer) map.get("limit");
+        //判断是否进行模糊查询
+        String key = map.get("key") == null ? "%%" : "%" + ((Map) map.get("key")).get("model") + "%";
+        return orderService.findAllByStatus(page, size, key);
+    }
+
 
     /**
      * 查询订单
@@ -55,6 +71,18 @@ public class OrderController {
     @GetMapping("/findUpdate")
     public AjaxResponseBody findUpdate(String orderNumber) {
         return orderService.findUpdate(orderNumber);
+    }
+
+    /**
+     * 查询交易(用于修改)
+     *
+     * @param orderNumber
+     * @returnø
+     */
+    @PreAuthorize("hasAnyAuthority('root')")
+    @GetMapping("/findUpdateOnTransaction")
+    public AjaxResponseBody findUpdateOnTransaction(String orderNumber) {
+        return orderService.findUpdateOnTransaction(orderNumber);
     }
 
     /**

@@ -1,16 +1,20 @@
 package com.spring.inventory.inventory.bean;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
 @Table(name = "transaction")
 public class Transaction {
     private int id;
+    private String orderNumber;
     private Integer commodity;
     private String color;
     private String size;
     private Integer num;
+    private BigDecimal price;
+    private BigDecimal totalPrice;
 
     @Id
     @Column(name = "id")
@@ -20,6 +24,16 @@ public class Transaction {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    @Basic
+    @Column(name = "orderNumber")
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(String orderNumber) {
+        this.orderNumber = orderNumber;
     }
 
     @Basic
@@ -60,6 +74,26 @@ public class Transaction {
 
     public void setNum(Integer num) {
         this.num = num;
+    }
+
+    @Basic
+    @Column(name = "price")
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    @Basic
+    @Column(name = "total_price")
+    public BigDecimal getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     @Override

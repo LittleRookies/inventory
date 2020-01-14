@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 8.0.13)
 # Database: demo
-# Generation Time: 2020-01-13 09:26:12 +0000
+# Generation Time: 2020-01-14 09:44:38 +0000
 # ************************************************************
 
 
@@ -153,7 +153,7 @@ CREATE TABLE `order_content` (
   `total_price` decimal(18,3) DEFAULT NULL COMMENT '总价',
   PRIMARY KEY (`id`),
   KEY `orderNumberByContent` (`orderNumber`),
-  CONSTRAINT `orderNumberByContent` FOREIGN KEY (`orderNumber`) REFERENCES `orders` (`orderNumber`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `orderNumberByContent` FOREIGN KEY (`orderNumber`) REFERENCES `orders` (`ordernumber`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='订单内容';
 
 LOCK TABLES `order_content` WRITE;
@@ -202,8 +202,8 @@ LOCK TABLES `orders` WRITE;
 INSERT INTO `orders` (`orderNumber`, `client`, `pay_direction`, `remarks`, `time`, `timestamp`, `status`, `status_people`, `founder`, `price`, `pay_price`)
 VALUES
 	('DDBH20190912001',18,'P','','2020-01-13 01:19:00','2019-09-12 04:19:56','Z','lisi',NULL,300.678,NULL),
-	('DDBH20191008001',18,'P','','2020-01-13 01:26:45',NULL,'Z','lisi','lisi',2701.000,NULL),
-	('DDBH20191008002',17,'R','131231111111111','2019-10-15 02:08:21',NULL,'Z','lisi','lisi',3333.000,NULL),
+	('DDBH20191008001',18,'P','','2020-01-14 03:41:01',NULL,'R',NULL,'lisi',0.000,NULL),
+	('DDBH20191008002',17,'R','131231111111111','2020-01-14 03:37:12',NULL,'R',NULL,'lisi',3333.000,NULL),
 	('DDBH20191008003',19,'P','','2019-10-15 01:59:23','2019-10-08 03:07:35','N','lisi','lisi',1332.000,NULL),
 	('DDBH20191008004',18,'R','','2019-10-15 01:46:53','2019-10-08 03:22:59','N','lisi','lisi',3996.000,NULL),
 	('DDBH20191009001',18,'R','','2019-10-08 22:33:28','2019-10-08 22:33:28','N',NULL,'lisi',222.000,NULL);
@@ -252,17 +252,19 @@ CREATE TABLE `transaction` (
   `color` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '颜色',
   `size` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '尺寸',
   `num` int(11) DEFAULT NULL COMMENT '实收数量',
+  `price` decimal(18,3) DEFAULT NULL COMMENT '单价',
+  `total_price` decimal(18,3) DEFAULT NULL COMMENT '总价',
   PRIMARY KEY (`id`),
   KEY `orderNumber` (`orderNumber`),
-  CONSTRAINT `orderNumber` FOREIGN KEY (`orderNumber`) REFERENCES `orders` (`orderNumber`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `orderNumber` FOREIGN KEY (`orderNumber`) REFERENCES `orders` (`ordernumber`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='交易';
 
 LOCK TABLES `transaction` WRITE;
 /*!40000 ALTER TABLE `transaction` DISABLE KEYS */;
 
-INSERT INTO `transaction` (`id`, `orderNumber`, `commodity`, `color`, `size`, `num`)
+INSERT INTO `transaction` (`id`, `orderNumber`, `commodity`, `color`, `size`, `num`, `price`, `total_price`)
 VALUES
-	(1,'DDBH20191008003',NULL,NULL,NULL,NULL);
+	(25,'DDBH20191008002',12,'白色','XL',1111,3.000,3333.000);
 
 /*!40000 ALTER TABLE `transaction` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -294,7 +296,7 @@ LOCK TABLES `user` WRITE;
 INSERT INTO `user` (`username`, `name`, `password`, `role`, `email`, `last_time`, `telephone`, `founder`, `timestamp`, `status`, `status_people`)
 VALUES
 	('admin','管理员','$2a$10$PdntCkca8xCno/HU12.mK.wD1dP4tXLGb4FUgonN2D6fNKsX8HW9y','admin','1@1.com','2019-08-26 15:32:58','11111111114','admin',NULL,'Y',NULL),
-	('lisi','老员工','$2a$10$oA7pvJKBxWUu6CiolxpXoeX0kaHZmEzFZrToPnSv2MS.cpWe4Phxq','root','lisi@163.com','2020-01-13 17:17:52','12345678902','zhangsan',NULL,'Y',NULL),
+	('lisi','老员工','$2a$10$oA7pvJKBxWUu6CiolxpXoeX0kaHZmEzFZrToPnSv2MS.cpWe4Phxq','root','lisi@163.com','2020-01-14 17:43:18','12345678902','zhangsan',NULL,'Y',NULL),
 	('new','新人','$2a$10$G782c/VA7apYcfWuBMEYwuZDVJHaQuc/RDwOuWJTR1cqI2gbUub6K','role','1@1.com','2019-10-15 14:20:21','11111111111','admin','2019-08-13 01:46:23','Y',NULL);
 
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
