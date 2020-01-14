@@ -105,12 +105,13 @@ public class OrderService {
         logger.info("findUpdateOnTransaction-----orderNumber={}", orderNumber);
         Order firstByOrderNumber = orderRepository.findFirstByOrderNumber(orderNumber);
         List<Map> allByOrderNumber = transactionRepository.findAllByOrderNumber(orderNumber);
-        if (allByOrderNumber.size() == 0) {
+        Order order = orderRepository.findFirstByOrderNumber(orderNumber);
+        if (allByOrderNumber.size() == 0 && order.getStatus().equals(DictionaryUtil.statusZ)) {
             allByOrderNumber = orderContentRepository.findAllByOrderNumber(orderNumber);
         }
+        redisTemplate.delete(orderNumber);
         if (allByOrderNumber.size() != 0) {
             List<Map> list = new ArrayList<>();
-            redisTemplate.delete(orderNumber);
             for (Map map : allByOrderNumber) {
                 Map newMap = new LinkedHashMap(map);
                 newMap.put("totalPrice", String.valueOf(map.get("total_price")));
