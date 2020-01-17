@@ -50,7 +50,10 @@ public class ClientService {
 
 
     public AjaxResponseBody delete(Integer id, String username) {
-        logger.info("delete");
+        logger.info("delete-----id={},username={}", id, username);
+        if (id==1){
+            return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode,"该商户为默认信息禁止删除！");
+        }
         Client client = clientRepository.findById(id).get();
         client.setStatus(DictionaryUtil.statusD);
         client.setStatusPeople(username);
