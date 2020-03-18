@@ -2,19 +2,73 @@ var ip = "http://127.0.0.1:8080";
 var ajaxdata = {};
 
 //为每个页面初始化导航
-var link = document.querySelector('link[rel="import"]');
-if (link != null) {
-    var content = link.import;
+var header = '<div class="layui-header" id="header">\n' +
+    '    <div class="layui-logo">库存管理系统</div>\n' +
+    '    <!-- 头部区域（可配合layui已有的水平导航） -->\n' +
+    '    <!--        <ul class="layui-nav layui-layout-left">-->\n' +
+    '    <!--            <li class="layui-nav-item"><a href="">控制台</a></li>-->\n' +
+    '    <!--            <li class="layui-nav-item"><a href="">商品管理</a></li>-->\n' +
+    '    <!--            <li class="layui-nav-item"><a href="">用户</a></li>-->\n' +
+    '    <!--            <li class="layui-nav-item">-->\n' +
+    '    <!--                <a href="javascript:;">其它系统</a>-->\n' +
+    '    <!--                <dl class="layui-nav-child">-->\n' +
+    '    <!--                    <dd><a href="">邮件管理</a></dd>-->\n' +
+    '    <!--                    <dd><a href="">消息管理</a></dd>-->\n' +
+    '    <!--                    <dd><a href="">授权管理</a></dd>-->\n' +
+    '    <!--                </dl>-->\n' +
+    '    <!--            </li>-->\n' +
+    '    <!--        </ul>-->\n' +
+    '    <ul class="layui-nav layui-layout-right">\n' +
+    '        <li class="layui-nav-item">\n' +
+    '            <a href="javascript:;" id="login-a">\n' +
+    '                <img src="http://t.cn/RCzsdCq" class="layui-nav-img">\n' +
+    '            </a>\n' +
+    '            <dl class="layui-nav-child">\n' +
+    '                <dd><a href="">基本资料</a></dd>\n' +
+    '                <dd><a href="">安全设置</a></dd>\n' +
+    '            </dl>\n' +
+    '        </li>\n' +
+    '        <li class="layui-nav-item"><a v-bind:href="logout">注销</a></li>\n' +
+    '    </ul>\n' +
+    '</div>';
+var navigation = '<div class="layui-side layui-bg-black" id="navigation">\n' +
+    '    <div class="layui-side-scroll">\n' +
+    '        <!-- 左侧导航区域（可配合layui已有的垂直导航） -->\n' +
+    '        <ul class="layui-nav layui-nav-tree" lay-filter="test">\n' +
+    '            <li class="layui-nav-item"><a v-bind:href="index">主页</a></li>\n' +
+    '            <li class="layui-nav-item">\n' +
+    '                <a class="" v-bind:href="client">客户</a>\n' +
+    '                <!--                <dl class="layui-nav-child">-->\n' +
+    '                <!--                    <dd><a href="javascript:;">列表一</a></dd>-->\n' +
+    '                <!--                    <dd><a href="javascript:;">列表二</a></dd>-->\n' +
+    '                <!--                    <dd><a href="javascript:;">列表三</a></dd>-->\n' +
+    '                <!--                    <dd><a href="">超链接</a></dd>-->\n' +
+    '                <!--                </dl>-->\n' +
+    '            </li>\n' +
+    '            <li class="layui-nav-item"><a v-bind:href="commodity">商品</a></li>\n' +
+    '            <li class="layui-nav-item"><a v-bind:href="order">订单</a>\n' +
+    '                <!--                <dl class="layui-nav-child">-->\n' +
+    '                <!--                    <dd><a href="javascript:;">列表一</a></dd>-->\n' +
+    '                <!--                    <dd><a href="javascript:;">列表二</a></dd>-->\n' +
+    '                <!--                    <dd><a href="">超链接</a></dd>-->\n' +
+    '                <!--                </dl>-->\n' +
+    '            </li>\n' +
+    '            <li class="layui-nav-item"><a v-bind:href="transaction">交易</a></li>\n' +
+    '            <li class="layui-nav-item"><a href="">库存</a></li>\n' +
+    '            <li class="layui-nav-item"><a href="">收付款</a></li>\n' +
+    '            <li class="layui-nav-item"><a v-bind:href="personnel">人员</a></li>\n' +
+    '        </ul>\n' +
+    '    </div>\n' +
+    '</div>';
+var tail = '<div class="layui-footer" id="tail">\n' +
+    '    <!-- 底部固定区域 -->\n' +
+    '</div>';
 
-    var header = content.querySelector('#header');
-    var navigation = content.querySelector('#navigation');
-    var tail = content.querySelector('#tail');
+document.getElementById("data").innerHTML = document.getElementById("data").innerHTML + header;
+document.getElementById("data").innerHTML = document.getElementById("data").innerHTML + navigation;
+document.getElementById("data").innerHTML = document.getElementById("data").innerHTML + tail;
+document.getElementById("login-a").innerHTML = document.getElementById("login-a").innerHTML + localStorage.getItem("name");
 
-    document.getElementById("data").appendChild(header.cloneNode(true));
-    document.getElementById("data").appendChild(navigation.cloneNode(true));
-    document.getElementById("data").appendChild(tail.cloneNode(true));
-    document.getElementById("login-a").innerHTML = document.getElementById("login-a").innerHTML + localStorage.getItem("name");
-}
 
 /**
  * ajax post请求
