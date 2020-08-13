@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="../layui/css/layui.css" media="all">
     <link rel="import" href="navigation.html">
 </head>
+<style>
+    #needPrice {
+        background: #b92c28;
+    }
+</style>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin" id="data">
     <div class="layui-body">
@@ -23,6 +28,64 @@
         </div>
     </div>
 </div>
+<div class="layui-row" id="InfoUpdate" style="display: none;">
+    <div class="layui-col-md10">
+        <form class="layui-form layui-from-pane" action=""
+              style="margin-top: 20px">
+            <div class="layui-form-item">
+                <label class="layui-form-label">订单</label>
+                <div class="layui-input-block">
+                    <input id="orderNumber" name="orderNumber"
+                           class="layui-input" disabled>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">交易对象</label>
+                <div class="layui-input-block">
+                    <input id="client" name="client"
+                           class="layui-input" disabled>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">支付</label>
+                <div class="layui-input-block">
+                    <input id="payDirection" name="payDirection"
+                           class="layui-input" disabled>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">总金额</label>
+                <div class="layui-input-block">
+                    <input id="price" name="price"
+                           class="layui-input" disabled>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">已支付金额</label>
+                <div class="layui-input-block">
+                    <input id="payPrice" name="payPrice"
+                           class="layui-input" disabled>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">剩余金额</label>
+                <div class="layui-input-block">
+                    <input id="needPrice" type="text" name="needPrice"
+                           class="layui-input" disabled>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">支付金额</label>
+                <div class="layui-input-block">
+                    <input id="thispayPrice" type="text" name="thispayPrice"
+                           required lay-verify="required" autocomplete="off"
+                           class="layui-input">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script src="../layui/layui.js"></script>
 <script src="../js/vue/vue.min.js"></script>
 <script src="../js/Config.js"></script>
@@ -54,16 +117,25 @@
             , contentType: "application/json;charset-UTF-8"
             , cols: [[
                 {field: 'orderNumber', title: '订单编号', width: 200}
-                , {field: 'client', title: '客户', width: 150}
+                , {field: 'client', title: '交易对象', width: 150}
                 , {field: 'payDirection', title: '支付方向', width: 150}
                 , {field: 'time', title: '修改时间', width: 200}
-                , {field: 'status', title: '当前状态', width: 100}
+                , {field: 'status', title: '当前状态', width: 100, filter: true}
                 , {field: 'price', title: '总价（元）', width: 120, sort: true}
                 , {field: 'payPrice', title: '已支付金额', width: 120}
                 , {field: 'remarks', title: '备注'}
+                , {field: 'clientid', hide: true}
                 , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 260}
             ]]
             , page: true
+            , done: function (res, curr, count) {
+                for (var i in res.data) {
+                    var MedicineID = res.data[i];
+                    if (MedicineID.price !== MedicineID.payPrice) {
+                        $("tr[data-index='" + i + "']").attr({"style": "color:red", "font-weight": "bold"})
+                    }
+                }
+            }
         });
 
         //头工具栏事件
@@ -84,38 +156,53 @@
         table.on('tool(person-table)', function (obj) {
             var data = obj.data;
             //console.log(obj)
-            if (obj.event === 'del') {
-                layer.confirm('真的删除行么', function (index) {
-                    layer.close(index);
-                    ajaxGet("/order/del?orderNumber=" + data.orderNumber);
-                    if (ajaxdata.code === "0") {
-                        obj.del();
-                    } else {
-                        layer.alert(ajaxdata.msg);
-                    }
-                });
-            } else if (obj.event === 'edit') {
+            if (obj.event === 'edit') {
                 window.location.href = ip + "/html/transaction-confirm.html?orderNumber=" + data.orderNumber;
             } else if (obj.event === 'view') {
-                window.location.href = ip + "/html/transaction-view.html?orderNumber=" + data.orderNumber;
-            } else if (obj.event === 'sendOrder') {
-                if (data.status === '待发货') {
-                    layer.confirm('订单货物已发出？', function (index) {
-                        layer.close(index);
-                        ajaxGet("/order/change?orderNumber=" + data.orderNumber);
-                        if (ajaxdata.code === "0") {
-                            table.reload("testReload");
-                            // obj.del();
+                window.open(ip + "/html/transaction-view.html?orderNumber=" + data.orderNumber);
+            } else if (obj.event === 'pay') {
+                document.getElementById("orderNumber").value = data.orderNumber;
+                document.getElementById("client").value = data.client;
+                document.getElementById("payDirection").value = data.payDirection;
+                document.getElementById("price").value = data.price;
+                document.getElementById("payPrice").value = data.payPrice;
+                document.getElementById("thispayPrice").value = 0;
+                document.getElementById("needPrice").value = floatSub(data.price, data.payPrice);
+                layer.open({
+                    type: 1,
+                    title: "支付金额",
+                    area: ['400px', '550px'],
+                    content: $("#InfoUpdate"),//引用的弹出层的页面层的方式加载修改界面表单
+                    btn: ['确认', '取消'],
+                    yes: function (index, layero) {
+                        thispayPrice = document.getElementById("thispayPrice").value;
+                        needPrice = document.getElementById("needPrice").value;
+                        if (parseFloat(thispayPrice) <= parseFloat(needPrice)) {
+                            data.thispayPrice = thispayPrice;
+                            //提交数据
+                            ajaxPostByJson("/payment/payOrder", JSON.stringify(data))
+                            if (ajaxdata !== {}) {
+                                delete data.thispayPrice;
+                                layer.close(index);
+                                //执行重载
+                                table.reload('testReload', {
+                                    page: {
+                                        curr: 1 //重新从第 1 页开始
+                                    }
+                                }, 'data');
+                            } else {
+                                alert("后台服务出现问题，请联系管理员！！");
+                            }
                         } else {
-                            layer.alert(ajaxdata.msg);
+                            alert("支付金额超出剩余需要指出金额！！");
                         }
-                    });
-                } else {
-                    layer.open({
-                        title: ''
-                        , content: '无法确认该订单'
-                    });
-                }
+                    },
+                    btn2: function (index, layero) {
+                        layer.close(index);
+                    }
+                });
+
+
             }
 
         });
@@ -142,7 +229,7 @@
             var type = $(this).data('type');
             active[type] ? active[type].call(this) : '';
         });
-    });
+    },);
 
 
 </script>

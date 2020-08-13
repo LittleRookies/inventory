@@ -17,7 +17,7 @@ public class ClientController {
     private ClientService clientService;
 
     /**
-     * 新增客户
+     * 新增交易对象
      *
      * @param client
      * @param request
@@ -33,7 +33,7 @@ public class ClientController {
     }
 
     /**
-     * 查询所有客户
+     * 查询所有交易对象
      *
      * @param map
      * @returnø
@@ -49,7 +49,7 @@ public class ClientController {
     }
 
     /**
-     * 查询所有客户
+     * 查询所有交易对象
      *
      * @returnø
      */
@@ -60,7 +60,7 @@ public class ClientController {
     }
 
     /**
-     * 删除客户
+     * 删除交易对象
      *
      * @param id
      * @return
@@ -72,7 +72,7 @@ public class ClientController {
     }
 
     /**
-     * 根据id查询客户详细
+     * 根据id查询交易对象详细
      *
      * @param id
      * @return

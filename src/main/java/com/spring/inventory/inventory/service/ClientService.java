@@ -1,5 +1,6 @@
 package com.spring.inventory.inventory.service;
 
+import com.alibaba.fastjson.JSON;
 import com.spring.inventory.inventory.bean.AjaxResponseBody;
 import com.spring.inventory.inventory.bean.Client;
 import com.spring.inventory.inventory.dao.ClientRepository;
@@ -21,7 +22,10 @@ public class ClientService {
     private final Logger logger = LoggerFactory.getLogger(ClientService.class);
 
     public AjaxResponseBody add(Client client) {
-        logger.info("AjaxResponseBody");
+        logger.info("AjaxResponseBody-----" + JSON.toJSONString(client));
+        if (client.getId() == 1) {
+            return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, "该角色无法修改！");
+        }
         client.setStatus(DictionaryUtil.statusY);
         clientRepository.save(client);
         return ResponseBodyUtil.successAjax();
@@ -51,8 +55,8 @@ public class ClientService {
 
     public AjaxResponseBody delete(Integer id, String username) {
         logger.info("delete-----id={},username={}", id, username);
-        if (id==1){
-            return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode,"该商户为默认信息禁止删除！");
+        if (id == 1) {
+            return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, "该商户为默认信息禁止删除！");
         }
         Client client = clientRepository.findById(id).get();
         client.setStatus(DictionaryUtil.statusD);

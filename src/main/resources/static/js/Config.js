@@ -21,7 +21,7 @@ var header = '<div class="layui-header" id="header">\n' +
     '    <ul class="layui-nav layui-layout-right">\n' +
     '        <li class="layui-nav-item">\n' +
     '            <a href="javascript:;" id="login-a">\n' +
-    '                <img src="http://t.cn/RCzsdCq" class="layui-nav-img">\n' +
+    '                <img src="/img/Avatar.jpg" class="layui-nav-img">\n' +
     '            </a>\n' +
     '            <dl class="layui-nav-child">\n' +
     '                <dd><a href="">基本资料</a></dd>\n' +
@@ -37,7 +37,7 @@ var navigation = '<div class="layui-side layui-bg-black" id="navigation">\n' +
     '        <ul class="layui-nav layui-nav-tree" lay-filter="test">\n' +
     '            <li class="layui-nav-item"><a v-bind:href="index">主页</a></li>\n' +
     '            <li class="layui-nav-item">\n' +
-    '                <a class="" v-bind:href="client">客户</a>\n' +
+    '                <a class="" v-bind:href="client">交易对象</a>\n' +
     '                <!--                <dl class="layui-nav-child">-->\n' +
     '                <!--                    <dd><a href="javascript:;">列表一</a></dd>-->\n' +
     '                <!--                    <dd><a href="javascript:;">列表二</a></dd>-->\n' +

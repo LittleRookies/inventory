@@ -31,7 +31,7 @@
                     </div>
                 </div>
                 <div class="layui-form-item">
-                    <label class="layui-form-label">客户</label>
+                    <label class="layui-form-label">交易对象</label>
                     <div class="layui-input-inline">
                         <select name="client" lay-verify="required" lay-search="" id="client_id" disabled>
                             <option value="">直接选择或搜索选择</option>
@@ -41,8 +41,8 @@
                 <div class="layui-form-item">
                     <label class="layui-form-label">收付方向</label>
                     <div class="layui-input-block">
-                        <input type="radio" name="payDirection" value="R" title="收" checked disabled>
-                        <input type="radio" name="payDirection" value="P" title="发" disabled>
+                        <input type="radio" name="payDirection" value="R" title="采购" checked disabled>
+                        <input type="radio" name="payDirection" value="P" title="销售" disabled>
                     </div>
                 </div>
                 <div class="layui-form-item">
@@ -143,7 +143,7 @@
         //查询订单编号
     var orderNumber = getQueryVariable("orderNumber");
     $("#orderNumber").attr("value", orderNumber);
-    //所有客户
+    //所有交易对象
     ajaxGet("/client/findAllNoPage");
     for (var client_i = 0; client_i < ajaxdata.data.length; client_i++) {
         $("#client_id").append("<option value=\"" + ajaxdata.data[client_i].id + "\">" + ajaxdata.data[client_i].name + "</option>");

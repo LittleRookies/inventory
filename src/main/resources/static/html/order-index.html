@@ -19,7 +19,18 @@
                 </div>
                 <button class="layui-btn" data-type="reload">搜索</button>
             </div>
-            <table class="layui-hide" id="person-table" lay-filter="person-table"></table>
+
+            <div class="layui-tab layui-tab-card" lay-filter="tabDemo">
+                <ul class="layui-tab-title">
+                    <li class="layui-this">全部订单</li>
+                    <li>待发货订单</li>
+                    <li>进行中订单</li>
+                    <li>确认收货订单</li>
+                    <li>已完成订单</li>
+                </ul>
+                <table class="layui-hide" id="person-table" lay-filter="person-table"></table>
+            </div>
+
         </div>
     </div>
 </div>
@@ -42,13 +53,17 @@
 <script type="text/html" id="barDemo2">
     <a class="layui-btn layui-btn-xs" lay-event="sendOrder">确认</a>
 </script>
+<script>
+    var orderTble;
+</script>
 
 <script>
     layui.use('table', function () {
         var table = layui.table;
+        orderTble = table;
 
         table.render({
-            elem: '#person-table'
+            elem: "#person-table"
             , url: ip + "/order/findAll"
             , method: "post"
             , toolbar: '#toolbarDemo'
@@ -57,7 +72,7 @@
             , contentType: "application/json;charset-UTF-8"
             , cols: [[
                 {field: 'orderNumber', title: '订单编号', width: 200}
-                , {field: 'client', title: '客户', width: 150}
+                , {field: 'client', title: '交易对象', width: 150}
                 , {field: 'payDirection', title: '支付方向', width: 150}
                 , {field: 'time', title: '修改时间', width: 200}
                 , {field: 'status', title: '当前状态', width: 100}
@@ -67,6 +82,12 @@
                 , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 180}
             ]]
             , page: true
+            , where: {
+                key: {
+                    status: "",
+                    model: ""
+                }
+            }
         });
 
         //头工具栏事件
@@ -100,7 +121,7 @@
             } else if (obj.event === 'edit') {
                 window.location.href = ip + "/html/order-update.html?orderNumber=" + data.orderNumber;
             } else if (obj.event === 'view') {
-                window.location.href = ip + "/html/order-view.html?orderNumber=" + data.orderNumber;
+                window.open(ip + "/html/order-view.html?orderNumber=" + data.orderNumber);
             } else if (obj.event === 'sendOrder') {
                 if (data.status === '待发货') {
                     layer.confirm('订单货物已发出？', function (index) {
@@ -146,8 +167,80 @@
             active[type] ? active[type].call(this) : '';
         });
     });
-
-
+</script>
+<script>
+    layui.use('element', function () {
+        var $ = layui.jquery
+            , element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+        element.on('tab(tabDemo)', function (data) {
+            if (data.index === 0) {
+                orderTble.reload('testReload', {
+                    url: ip + "/order/findAll"
+                    , page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        key: {
+                            status: "",
+                            model: ""
+                        }
+                    }
+                }, 'data');
+            } else if (data.index === 1) {
+                orderTble.reload('testReload', {
+                    url: ip + "/order/findAll"
+                    , page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        key: {
+                            status: "N",
+                            model: ""
+                        }
+                    }
+                }, 'data');
+            } else if (data.index === 2) {
+                orderTble.reload('testReload', {
+                    url: ip + "/order/findAll"
+                    , page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        key: {
+                            status: "Z",
+                            model: ""
+                        }
+                    }
+                }, 'data');
+            } else if (data.index === 3) {
+                orderTble.reload('testReload', {
+                    url: ip + "/order/findAll"
+                    , page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        key: {
+                            status: "R",
+                            model: ""
+                        }
+                    }
+                }, 'data');
+            } else if (data.index === 4) {
+                orderTble.reload('testReload', {
+                    url: ip + "/order/findAll"
+                    , page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        key: {
+                            status: "Y",
+                            model: ""
+                        }
+                    }
+                }, 'data');
+            }
+        });
+    });
 </script>
 
 </body>

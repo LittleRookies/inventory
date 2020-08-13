@@ -97,7 +97,7 @@
             } else if (obj.event === 'edit') {
                 window.location.href = ip + "/html/commodity-update.html?id=" + data.id;
             } else if (obj.event === 'view') {
-                window.location.href = ip + "/html/commodity-view.html?id=" + data.id;
+                window.open(ip + "/html/commodity-view.html?id=" + data.id);
             }
 
         });

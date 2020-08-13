@@ -38,10 +38,17 @@ public class OrderService {
 
     private final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
-    public AjaxResponseBody findAll(Integer page, Integer size, String orderNumber) {
-        logger.info("findAll-----page={},size={},orderNumber={}", page, size, orderNumber);
+    public AjaxResponseBody findAll(Integer page, Integer size, String orderNumber, String status) {
+        logger.info("findAll-----page={},size={},orderNumber={},status={}", page, size, orderNumber, status);
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Map> orders = orderRepository.findAllByStatusNotAndOrderNumberLike(pageable, DictionaryUtil.statusD, orderNumber);
+        Page<Map> orders;
+//        如果status为空则查询所有非D状态的订单
+        if (status.equals("")) {
+            orders = orderRepository.findAllByStatusNotAndOrderNumberLike(pageable, DictionaryUtil.statusD, orderNumber);
+        } else {
+            orders = orderRepository.findAllByStatusNotAndOrderNumberLikeBystatus(pageable, status, orderNumber);
+        }
+
         List<Map> content = orders.getContent();
         List<Map> mapList = new ArrayList<>();
         for (Map order : content) {
@@ -57,6 +64,8 @@ public class OrderService {
 
     public AjaxResponseBody findAllByStatus(Integer page, Integer size, String orderNumber) {
         logger.info("findAllByStatus-----page={},size={},orderNumber={}", page, size, orderNumber);
+        page = page == null ? 1 : page;
+        size = size == null ? 10 : size;
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Map> orders = orderRepository.findAllByStatusAndOrderNumberLike(pageable, new ArrayList<String>() {{
             this.add(DictionaryUtil.statusY);

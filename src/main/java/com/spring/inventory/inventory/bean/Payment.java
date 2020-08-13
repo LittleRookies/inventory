@@ -15,6 +15,10 @@ public class Payment {
     private String orderNumber;
     private BigDecimal payPrice;
     private Timestamp timestamp;
+    private BigDecimal endPrice;
+    private BigDecimal needPrice;
+    private String statusPeople;
+    private BigDecimal thisPayPrice;
 
     @Id
     @Column(name = "id")
@@ -82,5 +86,45 @@ public class Payment {
     @Override
     public int hashCode() {
         return Objects.hash(id, clientId, orderNumber, payPrice, timestamp);
+    }
+
+    @Basic
+    @Column(name = "end_price")
+    public BigDecimal getEndPrice() {
+        return endPrice;
+    }
+
+    public void setEndPrice(BigDecimal endPrice) {
+        this.endPrice = endPrice;
+    }
+
+    @Basic
+    @Column(name = "need_price")
+    public BigDecimal getNeedPrice() {
+        return needPrice;
+    }
+
+    public void setNeedPrice(BigDecimal needPrice) {
+        this.needPrice = needPrice;
+    }
+
+    @Basic
+    @Column(name = "status_people")
+    public String getStatusPeople() {
+        return statusPeople;
+    }
+
+    public void setStatusPeople(String statusPeople) {
+        this.statusPeople = statusPeople;
+    }
+
+    @Basic
+    @Column(name = "this_pay_price")
+    public BigDecimal getThisPayPrice() {
+        return thisPayPrice;
+    }
+
+    public void setThisPayPrice(BigDecimal thisPayPrice) {
+        this.thisPayPrice = thisPayPrice;
     }
 }

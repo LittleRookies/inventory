@@ -29,7 +29,8 @@ public class OrderController {
         Integer size = (Integer) map.get("limit");
         //判断是否进行模糊查询
         String key = map.get("key") == null ? "%%" : "%" + ((Map) map.get("key")).get("model") + "%";
-        return orderService.findAll(page, size, key);
+        String status = map.get("key") == null ? null : ((Map) map.get("key")).get("status").toString();
+        return orderService.findAll(page, size, key, status);
     }
 
     /**

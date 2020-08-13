@@ -5,7 +5,7 @@ public class DictionaryUtil {
     public final static String exceptionErrCode = "-1";//系统内部错误
     public final static String successCode = "0";//操作成功
 
-    public final static String statusY = "Y";//状态：通过
+    public final static String statusY = "Y";//状态：已完成
     public final static String statusD = "D";//状态：删除
     public final static String statusZ = "Z";//状态：进行中
     public final static String statusR = "R";//状态：确认收货
@@ -16,10 +16,10 @@ public class DictionaryUtil {
         String result = "";
         switch (payDirection) {
             case "P":
-                result = "发";
+                result = "销售";
                 break;
             case "R":
-                result = "收";
+                result = "采购";
                 break;
         }
         return result;

@@ -13,7 +13,7 @@
         <!-- 内容主体区域 -->
         <div style="padding: 15px;">
             <div class="demoTable">
-                搜索客户名称：
+                搜索交易对象名称：
                 <div class="layui-inline">
                     <input class="layui-input" name="name" id="demoReload" autocomplete="off">
                 </div>
@@ -29,7 +29,7 @@
 <script src="../js/jquery/jquery.js"></script>
 <script type="text/html" id="toolbarDemo">
     <div class="layui-btn-container">
-        <button class="layui-btn layui-btn-sm" lay-event="addDate">新增客户</button>
+        <button class="layui-btn layui-btn-sm" lay-event="addDate">新增交易对象</button>
     </div>
 </script>
 
@@ -52,7 +52,7 @@
             , id: 'testReload'
             , contentType: "application/json;charset-UTF-8"
             , cols: [[
-                {field: 'name', title: '客户名称', width: 200}
+                {field: 'name', title: '交易对象名称', width: 200}
                 , {field: 'telephone', title: '电话号码', width: 100}
                 , {field: 'people', title: '联系人', width: 120}
                 , {field: 'phone', title: '手机号', width: 100}
@@ -89,7 +89,12 @@
                     }
                 });
             } else if (obj.event === 'edit') {
-                window.location.href = ip + "/html/client-update.html?id=" + data.id;
+                if (data.name!=="散户"){
+                    window.location.href = ip + "/html/client-update.html?id=" + data.id;
+                }else {
+                    layer.msg("该角色无法修改！");
+                }
+
             }
 
         });

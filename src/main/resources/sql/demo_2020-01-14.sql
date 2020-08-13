@@ -28,7 +28,7 @@ DROP TABLE IF EXISTS `client`;
 
 CREATE TABLE `client` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '客户名称',
+  `name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '交易对象名称',
   `telephone` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '电话号码',
   `people` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '联系人',
   `phone` varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '手机号',
@@ -40,7 +40,7 @@ CREATE TABLE `client` (
   `status` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'Y' COMMENT '状态',
   `status_people` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '修改人',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='客户';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='交易对象';
 
 LOCK TABLES `client` WRITE;
 /*!40000 ALTER TABLE `client` DISABLE KEYS */;
@@ -48,8 +48,8 @@ LOCK TABLES `client` WRITE;
 INSERT INTO `client` (`id`, `name`, `telephone`, `people`, `phone`, `adress`, `remarks`, `time`, `founder`, `timestamp`, `status`, `status_people`)
 VALUES
 	(17,'示例','','','','','','2019-08-13 04:05:26','lisi','2019-08-13 04:05:26','Y',NULL),
-	(18,'客户2',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2019-08-14 16:00:21','Y',NULL),
-	(19,'客户3',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2019-08-14 16:00:28','Y',NULL),
+	(18,'交易对象2',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2019-08-14 16:00:21','Y',NULL),
+	(19,'交易对象3',NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2019-08-14 16:00:28','Y',NULL),
 	(20,'测试',NULL,NULL,NULL,NULL,NULL,'2019-08-26 03:25:39','lisi','2019-08-22 02:52:27','Y','lisi');
 
 /*!40000 ALTER TABLE `client` ENABLE KEYS */;
@@ -183,7 +183,7 @@ DROP TABLE IF EXISTS `orders`;
 
 CREATE TABLE `orders` (
   `orderNumber` varchar(18) NOT NULL DEFAULT '' COMMENT '订单编号',
-  `client` int(11) DEFAULT NULL COMMENT '客户',
+  `client` int(11) DEFAULT NULL COMMENT '交易对象',
   `pay_direction` varchar(1) DEFAULT NULL COMMENT '支付方向',
   `remarks` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '备注',
   `time` datetime DEFAULT NULL COMMENT '修改时间',
