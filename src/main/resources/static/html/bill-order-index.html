@@ -17,13 +17,6 @@
     <div class="layui-body">
         <!-- 内容主体区域 -->
         <div style="padding: 15px;">
-            <div class="demoTable">
-                搜索订单：
-                <div class="layui-inline">
-                    <input class="layui-input" name="name" id="demoReload" autocomplete="off">
-                </div>
-                <button class="layui-btn" data-type="reload">搜索</button>
-            </div>
             <table class="layui-hide" id="person-table" lay-filter="person-table"></table>
         </div>
     </div>
@@ -90,11 +83,6 @@
 <script src="../js/vue/vue.min.js"></script>
 <script src="../js/Config.js"></script>
 <script src="../js/jquery/jquery.js"></script>
-<script type="text/html" id="toolbarDemo">
-    <div class="layui-btn-container">
-        <button class="layui-btn layui-btn-sm" lay-event="addDate">新增订单</button>
-    </div>
-</script>
 
 
 <script type="text/html" id="barDemo">
@@ -110,7 +98,7 @@
 
         table.render({
             elem: '#person-table'
-            , url: ip + "/order/findAllByStatus"
+            , url: ip + "/order/findAllByclient"
             , method: "post"
             , toolbar: '#toolbarDemo'
             , title: '用户数据表'
@@ -129,6 +117,9 @@
                 , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 260}
             ]]
             , page: true
+            , where: {
+                id: getQueryVariable("id"),
+            }
             , done: function (res, curr, count) {
                 for (var i in res.data) {
                     var MedicineID = res.data[i];
@@ -168,69 +159,56 @@
                     }
                 });
             } else if (obj.event === 'pay') {
-                document.getElementById("orderNumber").value = data.orderNumber;
-                document.getElementById("client").value = data.client;
-                document.getElementById("payDirection").value = data.payDirection;
-                document.getElementById("price").value = data.price;
-                document.getElementById("payPrice").value = data.payPrice;
-                document.getElementById("thispayPrice").value = 0;
-                document.getElementById("needPrice").value = floatSub(data.price, data.payPrice);
-                layer.open({
-                    type: 1,
-                    title: "支付金额",
-                    area: ['400px', '550px'],
-                    content: $("#InfoUpdate"),//引用的弹出层的页面层的方式加载修改界面表单
-                    btn: ['确认', '取消'],
-                    yes: function (index, layero) {
-                        thispayPrice = document.getElementById("thispayPrice").value;
-                        needPrice = document.getElementById("needPrice").value;
-                        if (parseFloat(thispayPrice) <= parseFloat(needPrice)) {
-                            data.thispayPrice = thispayPrice;
-                            //提交数据
-                            ajaxPostByJson("/payment/payOrder", JSON.stringify(data))
-                            if (ajaxdata !== {}) {
-                                delete data.thispayPrice;
-                                layer.close(index);
-                                //执行重载
-                                table.reload('testReload', {
-                                    page: {
-                                        curr: 1 //重新从第 1 页开始
-                                    }
-                                }, 'data');
+                if (data.status === "确认收货") {
+                    document.getElementById("orderNumber").value = data.orderNumber;
+                    document.getElementById("client").value = data.client;
+                    document.getElementById("payDirection").value = data.payDirection;
+                    document.getElementById("price").value = data.price;
+                    document.getElementById("payPrice").value = data.payPrice;
+                    document.getElementById("thispayPrice").value = 0;
+                    document.getElementById("needPrice").value = floatSub(data.price, data.payPrice);
+                    layer.open({
+                        type: 1,
+                        title: "支付金额",
+                        area: ['400px', '550px'],
+                        content: $("#InfoUpdate"),//引用的弹出层的页面层的方式加载修改界面表单
+                        btn: ['确认', '取消'],
+                        yes: function (index, layero) {
+                            thispayPrice = document.getElementById("thispayPrice").value;
+                            needPrice = document.getElementById("needPrice").value;
+                            if (parseFloat(thispayPrice) <= parseFloat(needPrice)) {
+                                data.thispayPrice = thispayPrice;
+                                //提交数据
+                                ajaxPostByJson("/payment/payOrder", JSON.stringify(data))
+                                if (ajaxdata !== {}) {
+                                    delete data.thispayPrice;
+                                    layer.close(index);
+                                    //执行重载
+                                    table.reload('testReload', {
+                                        page: {
+                                            curr: 1 //重新从第 1 页开始
+                                        }
+                                    }, 'data');
+                                } else {
+                                    alert("后台服务出现问题，请联系管理员！！");
+                                }
                             } else {
-                                alert("后台服务出现问题，请联系管理员！！");
+                                alert("支付金额超出剩余需要指出金额！！");
                             }
-                        } else {
-                            alert("支付金额超出剩余需要指出金额！！");
+                        },
+                        btn2: function (index, layero) {
+                            layer.close(index);
                         }
-                    },
-                    btn2: function (index, layero) {
-                        layer.close(index);
-                    }
-                });
+                    });
+                } else {
+                    layer.msg("必须在确认收货后进行支付操作！！");
+                }
 
 
             }
 
         });
 
-        var active = {
-            reload: function () {
-                var demoReload = $('#demoReload');
-
-                //执行重载
-                table.reload('testReload', {
-                    page: {
-                        curr: 1 //重新从第 1 页开始
-                    }
-                    , where: {
-                        key: {
-                            model: demoReload.val()
-                        }
-                    }
-                }, 'data');
-            }
-        };
 
         $('.demoTable .layui-btn').on('click', function () {
             var type = $(this).data('type');

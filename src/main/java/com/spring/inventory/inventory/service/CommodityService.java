@@ -1,5 +1,6 @@
 package com.spring.inventory.inventory.service;
 
+import com.alibaba.fastjson.JSON;
 import com.spring.inventory.inventory.bean.AjaxResponseBody;
 import com.spring.inventory.inventory.bean.Commodity;
 import com.spring.inventory.inventory.bean.Label;
@@ -10,6 +11,7 @@ import com.spring.inventory.inventory.util.ResponseBodyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,13 +48,17 @@ public class CommodityService {
     }
 
     public AjaxResponseBody save(Commodity commodity, String username) {
-        logger.info("save");
+        logger.info("save=====" + JSON.toJSONString(commodity));
         //创建人不能修改
         if (!commodityRepository.existsById(commodity.getId())) {
             commodity.setFounder(username);
         }
         commodity.setStatusPeople(username);
-        commodityRepository.save(commodity);
+        try {
+            commodityRepository.save(commodity);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, "该型号已存在请重新输入!");
+        }
         String label = commodity.getType();
         String[] split = label.split(",");
         int i = 0;

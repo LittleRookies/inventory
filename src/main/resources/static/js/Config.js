@@ -54,8 +54,8 @@ var navigation = '<div class="layui-side layui-bg-black" id="navigation">\n' +
     '                <!--                </dl>-->\n' +
     '            </li>\n' +
     '            <li class="layui-nav-item"><a v-bind:href="transaction">交易</a></li>\n' +
-    '            <li class="layui-nav-item"><a href="">库存</a></li>\n' +
-    '            <li class="layui-nav-item"><a href="">收付款</a></li>\n' +
+    '            <li class="layui-nav-item"><a v-bind:href="stock">库存</a></li>\n' +
+    '            <li class="layui-nav-item"><a v-bind:href="bill">收付款</a></li>\n' +
     '            <li class="layui-nav-item"><a v-bind:href="personnel">人员</a></li>\n' +
     '        </ul>\n' +
     '    </div>\n' +
@@ -142,7 +142,7 @@ function ajaxGet(url) {
         }
         ,
         error: function () {
-            alert("无法请求服务！");
+            layer.msg("无法请求服务！");
         }
     })
     ;
@@ -174,7 +174,9 @@ new Vue({
         client: ip + "/html/client-index.html",
         commodity: ip + "/html/commodity-index.html",
         order: ip + "/html/order-index.html",
-        transaction: ip + "/html/transaction-index.html"
+        transaction: ip + "/html/transaction-index.html",
+        stock:ip + "/html/stock-index.html",
+        bill:ip + "/html/bill-index.html",
     }
 });
 

@@ -58,7 +58,7 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     #    控制台显示SQL
-    show-sql: false
+    show-sql: true
     #    这个参数是在建表的时候，将默认的存储引擎切换为 InnoDB 用的。
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
   redis:

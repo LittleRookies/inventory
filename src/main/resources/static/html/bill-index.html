@@ -1,0 +1,114 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>库存管理系统</title>
+    <link rel="stylesheet" href="../layui/css/layui.css" media="all">
+    <link rel="import" href="navigation.html">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin" id="data">
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;">
+            <div class="demoTable">
+                搜索对象：
+                <div class="layui-inline">
+                    <input class="layui-input" name="name" id="demoReload" autocomplete="off">
+                </div>
+                <button class="layui-btn" data-type="reload">搜索</button>
+            </div>
+            <table class="layui-hide" id="person-table" lay-filter="person-table"></table>
+        </div>
+    </div>
+</div>
+<script src="../layui/layui.js"></script>
+<script src="../js/vue/vue.min.js"></script>
+<script src="../js/Config.js"></script>
+<script src="../js/jquery/jquery.js"></script>
+
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="view">查看</a>
+    <a class="layui-btn layui-btn-xs" lay-event="end">完成所有订单</a>
+</script>
+
+<script>
+    layui.use('table', function () {
+        var table = layui.table;
+
+        table.render({
+            elem: '#person-table'
+            , url: ip + "/bill/findAll"
+            , method: "post"
+            , toolbar: '#toolbarDemo'
+            , title: '用户数据表'
+            , id: 'testReload'
+            , contentType: "application/json;charset-UTF-8"
+            , cols: [[
+                {field: 'name', title: '交易对手名称', width: 200}
+                , {field: 'price', title: '账单金额', width: 150}
+                , {field: 'pay_price', title: '已交易金额', width: 150}
+                , {field: 'directionDic', title: '收付方向', width: 100}
+                , {field: 'endDic', title: '是否完成', width: 100}
+                , {field: 'startTime', title: '开始时间', width: 200, sort: true}
+                , {field: 'time', title: '结束时间', width: 200, sort: true}
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 300}
+            ]]
+            , page: true
+            , done: function (res, curr, count) {
+                for (var i in res.data) {
+                    var MedicineID = res.data[i];
+                    if (MedicineID.price !== MedicineID.pay_price && MedicineID.end === "N") {
+                        $("tr[data-index='" + i + "']").attr({"style": "color:red", "font-weight": "bold"})
+                    }
+                }
+            }
+        });
+
+        //监听行工具事件
+        table.on('tool(person-table)', function (obj) {
+            var data = obj.data;
+            //console.log(obj)
+            if (obj.event === 'end') {
+                layer.confirm('确定要完成该账单内的所有订单吗？', function (index) {
+                    layer.close(index);
+                    ajaxGet("/bill/end?id=" + data.id);
+                    table.reload("testReload");
+                });
+            } else if (obj.event === 'view') {
+                window.open(ip + "/html/bill-order-index.html?id=" + data.id);
+            }
+
+        });
+
+        var active = {
+            reload: function () {
+                var demoReload = $('#demoReload');
+
+                //执行重载
+                table.reload('testReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始ƒ
+                    }
+                    , where: {
+                        key: {
+                            model: demoReload.val()
+                        }
+                    }
+                }, 'data');
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+
+</script>
+
+</body>
+</html>

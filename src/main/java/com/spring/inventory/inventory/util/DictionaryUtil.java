@@ -47,4 +47,17 @@ public class DictionaryUtil {
         return result;
     }
 
+    public static String end(String end) {
+        String result = "";
+        switch (end) {
+            case "Y":
+                result = "完成";
+                break;
+            case "N":
+                result = "未完成";
+                break;
+        }
+        return result;
+    }
+
 }

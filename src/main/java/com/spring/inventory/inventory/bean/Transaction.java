@@ -1,12 +1,13 @@
 package com.spring.inventory.inventory.bean;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
 @Table(name = "transaction")
-public class Transaction {
+public class Transaction implements Serializable {
     private int id;
     private String orderNumber;
     private Integer commodity;
@@ -18,6 +19,7 @@ public class Transaction {
 
     @Id
     @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public int getId() {
         return id;
     }

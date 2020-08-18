@@ -15,7 +15,7 @@ public class LoggerErrUtil {
         log.error("exception cause : {}", e.getCause());
 //        log.error("exception suppressed : {}", e.getSuppressed());
 //        //异常输出
-        log.error("exception toString and track space : {}", "\r\n" + e);
+        log.error("exception toString and track space : {}", "\r" + e);
         log.error(errorTrackSpace(e));
 //        log.error("---------------------------------------------");
 //        e.printStackTrace();
@@ -25,7 +25,7 @@ public class LoggerErrUtil {
         StringBuffer sb = new StringBuffer();
         if (e != null) {
             for (StackTraceElement element : e.getStackTrace()) {
-                sb.append("\r\n\t").append(element);
+                sb.append("\r\t").append(element);
             }
         }
         return sb.length() == 0 ? null : sb.toString();

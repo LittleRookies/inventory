@@ -32,7 +32,7 @@ public class ClientService {
     }
 
     public AjaxResponseBody findAll(Integer page, Integer size, String name) {
-        logger.info("findAll");
+        logger.info("findAll-----page={},size={},name={}", page, size, name);
         if (name == null || name.equals("")) {
             //查询全部
             Pageable pageable = PageRequest.of(page - 1, size);

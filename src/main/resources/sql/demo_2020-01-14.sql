@@ -10,6 +10,12 @@
 # Generation Time: 2020-01-14 09:44:38 +0000
 # ************************************************************
 
+show variables like '%time_zone%';
+# 可以看到时区是CST,所以需修改
+set global time_zone='+8:00';
+set time_zone='+8:00';
+flush privileges;
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;

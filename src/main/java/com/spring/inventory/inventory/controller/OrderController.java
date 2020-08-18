@@ -134,4 +134,19 @@ public class OrderController {
     }
 
 
+    /**
+     * 跟定交易对手查询订单
+     *
+     * @param map
+     * @return
+     */
+    @PreAuthorize("hasAnyAuthority('root')")
+    @PostMapping("/findAllByclient")
+    public AjaxResponseBody findAllByclient(@RequestBody Map map) {
+        Integer page = (Integer) map.get("page");
+        Integer size = (Integer) map.get("limit");
+        //判断是否进行模糊查询
+        Integer id = Integer.valueOf((String) map.get("id"));
+        return orderService.findAllByclient(page, size, id);
+    }
 }

@@ -1,13 +1,10 @@
 package com.spring.inventory.inventory.service;
 
 import com.alibaba.fastjson.JSON;
-import com.spring.inventory.inventory.bean.AjaxResponseBody;
-import com.spring.inventory.inventory.bean.Order;
-import com.spring.inventory.inventory.bean.OrderAndContent;
-import com.spring.inventory.inventory.dao.OrderContentRepository;
-import com.spring.inventory.inventory.dao.OrderRepository;
-import com.spring.inventory.inventory.dao.TransactionRepository;
+import com.spring.inventory.inventory.bean.*;
+import com.spring.inventory.inventory.dao.*;
 import com.spring.inventory.inventory.util.DictionaryUtil;
+import com.spring.inventory.inventory.util.InAndOutBoundUtil;
 import com.spring.inventory.inventory.util.ResponseBodyUtil;
 import com.spring.inventory.inventory.util.TimeUtil;
 import org.slf4j.Logger;
@@ -22,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+import static com.spring.inventory.inventory.util.TypeTransformUtil.ObjToBigDec;
+
 @Service
 public class OrderService {
     @Autowired
@@ -35,6 +34,12 @@ public class OrderService {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private StockRepository stockRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     private final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
@@ -136,18 +141,80 @@ public class OrderService {
     @Transactional
     public AjaxResponseBody add(OrderAndContent orderAndContent, String founder) {
         logger.info("add-----" + JSON.toJSONString(orderAndContent));
-        if (orderAndContent.getOrder().getStatus() == null || "".equals(orderAndContent.getOrder().getStatus())) {
-            orderAndContent.getOrder().setStatus(DictionaryUtil.statusN);
-        }
         orderAndContent.getOrder().setFounder(founder);
-        if (!orderAndContent.getOrder().getStatus().equals(DictionaryUtil.statusN)) {
-            return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, "该订单已经发出或已经完成无法修改！");
+//        client=1 为 散户
+        if (orderAndContent.getOrder().getClient() != 1) {
+//            如果为非散户
+            if (orderAndContent.getOrder().getStatus() == null || "".equals(orderAndContent.getOrder().getStatus())) {
+                orderAndContent.getOrder().setStatus(DictionaryUtil.statusN);
+            }
+            if (!orderAndContent.getOrder().getStatus().equals(DictionaryUtil.statusN)) {
+                return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, "该订单已经发出或已经完成无法修改！");
+            }
+            orderRepository.save(orderAndContent.getOrder());//存入订单
+        } else {
+//            如果为散户则订单、交易直接完成
+//            散户存入库存操作
+            List<Stock> stockArrayList = new ArrayList<>();
+            for (OrderContent orderContent : orderAndContent.getOrderContents()) {
+                List<Stock> allByCommodityAndColorAndSize = stockRepository.findAllByCommodityAndColorAndSize(
+                        orderContent.getCommodity(), orderContent.getColor(), orderContent.getSize());
+                if (allByCommodityAndColorAndSize.size() == 0) {
+                    Stock stock = new Stock();
+//                若库存没有记录则存入
+                    stock.setClientId(orderAndContent.getOrder().getClient());
+                    stock.setColor(orderContent.getColor());
+                    stock.setCommodity(orderContent.getCommodity());
+                    stock.setSize(orderContent.getSize());
+                    try {
+                        stock.setNum(InAndOutBoundUtil.inAndOut(0, orderContent.getNum(), orderAndContent.getOrder().getPayDirection()));
+                    } catch (Exception e) {
+                        return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, e.getLocalizedMessage());
+                    }
+                    stockArrayList.add(stock);
+
+                } else {
+                    Stock stock;
+//               若库存有记录则更新记录
+                    stock = allByCommodityAndColorAndSize.get(0);
+                    try {
+                        stock.setNum(InAndOutBoundUtil.inAndOut(stock.getNum(), orderContent.getNum(), orderAndContent.getOrder().getPayDirection()));
+                    } catch (Exception e) {
+                        return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, e.getLocalizedMessage());
+                    }
+                    stockArrayList.add(stock);
+                }
+            }
+            stockRepository.saveAll(stockArrayList);
+            //            存储订单信息
+            orderAndContent.getOrder().setStatus(DictionaryUtil.statusY);
+            orderAndContent.getOrder().setPayPrice(orderAndContent.getOrder().getPrice());
+            Order order = orderAndContent.getOrder();
+            orderRepository.save(orderAndContent.getOrder());//存入订单
+//            存储交易信息
+            Payment payment = new Payment();
+            payment.setOrderNumber(order.getOrderNumber());
+            payment.setClientId(order.getClient());
+            payment.setPayPrice(order.getPrice());
+            payment.setEndPrice(order.getPrice());
+            payment.setNeedPrice(ObjToBigDec(0));
+            payment.setStatusPeople(founder);
+            payment.setThisPayPrice(order.getPrice());
+            paymentRepository.save(payment);
+//            存储实际到收货信息
+            List<Transaction> list = new ArrayList<>();
+            for (OrderContent orderContent : orderAndContent.getOrderContents()) {
+                Transaction transaction = JSON.parseObject(JSON.toJSONString(orderContent), Transaction.class);
+                list.add(transaction);
+            }
+            transactionRepository.saveAll(list);
+
         }
-        orderRepository.save(orderAndContent.getOrder());
-        orderContentRepository.deleteAllByOrderNumber(orderAndContent.getOrder().getOrderNumber());
-        orderContentRepository.saveAll(orderAndContent.getOrderContents());
+        orderContentRepository.deleteAllByOrderNumber(orderAndContent.getOrder().getOrderNumber());//删除原订单内容
+        orderContentRepository.saveAll(orderAndContent.getOrderContents());//存入新订单内容
         redisTemplate.delete(orderAndContent.getOrder().getOrderNumber());
         return ResponseBodyUtil.successAjax();
+
     }
 
     @Transactional
@@ -196,5 +263,24 @@ public class OrderService {
         }
         String orderNumber = "DDBH" + date + number;
         return ResponseBodyUtil.successAjax(orderNumber);
+    }
+
+    public AjaxResponseBody findAllByclient(Integer page, Integer size, Integer id) {
+        logger.info("findAllByclient-----id={}", id);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Map> allByClientAndPayDirection = orderRepository.findAllByClientAndPayDirection(pageable, id);
+
+        List<Map> content = allByClientAndPayDirection.getContent();
+        List<Map> mapList = new ArrayList<>();
+        for (Map order : content) {
+            //转换为看查看数据
+            Map map = new HashMap(order);
+            map.put("payDirection", DictionaryUtil.payDirectionDic(String.valueOf(order.get("payDirection"))));
+            map.put("status", DictionaryUtil.statusDic(String.valueOf(order.get("status"))));
+            mapList.add(map);
+
+        }
+        return ResponseBodyUtil.responseBodyByPage(allByClientAndPayDirection, mapList, "");
+
     }
 }

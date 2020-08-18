@@ -131,7 +131,7 @@ public class Order {
     }
 
     @Basic
-    @Column(name = "pay_price")
+    @Column(name = "pay_price", insertable = false, columnDefinition = "decimal(18,3) DEFAULT 0.000")
     public BigDecimal getPayPrice() {
         return payPrice;
     }

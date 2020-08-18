@@ -4,17 +4,14 @@ import com.spring.inventory.inventory.bean.AjaxResponseBody;
 import com.spring.inventory.inventory.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/payment")
-public class paymentController {
+public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
@@ -30,5 +27,19 @@ public class paymentController {
     public AjaxResponseBody payOrder(@RequestBody Map map, HttpServletRequest request) {
         String name = request.getUserPrincipal().getName();
         return paymentService.payOrder(map, name);
+    }
+
+    /**
+     * 修改订单状态为 完成
+     *
+     * @param orderNumber
+     * @param request
+     * @return
+     */
+    @PreAuthorize("hasAnyAuthority('root')")
+    @GetMapping("/endOrder")
+    public AjaxResponseBody endOrder(String orderNumber, HttpServletRequest request) {
+        String name = request.getUserPrincipal().getName();
+        return paymentService.endOrder(orderNumber, name);
     }
 }

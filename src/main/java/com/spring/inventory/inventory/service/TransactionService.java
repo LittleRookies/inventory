@@ -1,12 +1,12 @@
 package com.spring.inventory.inventory.service;
 
 import com.alibaba.fastjson.JSON;
-import com.spring.inventory.inventory.bean.AjaxResponseBody;
-import com.spring.inventory.inventory.bean.Order;
-import com.spring.inventory.inventory.bean.OrderAndTransaction;
+import com.spring.inventory.inventory.bean.*;
 import com.spring.inventory.inventory.dao.OrderRepository;
+import com.spring.inventory.inventory.dao.StockRepository;
 import com.spring.inventory.inventory.dao.TransactionRepository;
 import com.spring.inventory.inventory.util.DictionaryUtil;
+import com.spring.inventory.inventory.util.InAndOutBoundUtil;
 import com.spring.inventory.inventory.util.ResponseBodyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -30,25 +31,62 @@ public class TransactionService {
     private OrderContentService orderContentService;
 
     @Autowired
+    private StockRepository stockRepository;
+
+    @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
     private final Logger logger = LoggerFactory.getLogger(TransactionService.class);
 
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public AjaxResponseBody add(OrderAndTransaction orderAndTransaction, String founder) {
         logger.info("add-----" + JSON.toJSONString(orderAndTransaction));
-        if (!orderAndTransaction.getOrder().getStatus().equals(DictionaryUtil.statusZ)) {
+        Order order = orderRepository.findFirstByOrderNumber(orderAndTransaction.getOrder().getOrderNumber());
+
+        if (!order.getStatus().equals(DictionaryUtil.statusZ)) {
             return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, "只能在收货前修改交易订单内容！");
         }
-        if (DictionaryUtil.statusZ.equals(orderAndTransaction.getOrder().getStatus())) {
-            orderAndTransaction.getOrder().setStatus(DictionaryUtil.statusR);
+        if (DictionaryUtil.statusZ.equals(order.getStatus())) {
+            order.setStatus(DictionaryUtil.statusR);
         }
-        orderAndTransaction.getOrder().setFounder(founder);
-        orderRepository.save(orderAndTransaction.getOrder());
-        transactionRepository.deleteAllByOrderNumber(orderAndTransaction.getOrder().getOrderNumber());
+        order.setFounder(founder);
+        List<Stock> list = new ArrayList<>();
+//        存入库存
+        for (Transaction transaction : orderAndTransaction.getTransactions()) {
+            List<Stock> allByCommodityAndColorAndSize = stockRepository.findAllByCommodityAndColorAndSize(
+                    transaction.getCommodity(), transaction.getColor(), transaction.getSize());
+            if (allByCommodityAndColorAndSize.size() == 0) {
+                Stock stock = new Stock();
+//                若库存没有记录则存入
+                stock.setClientId(order.getClient());
+                stock.setColor(transaction.getColor());
+                stock.setCommodity(transaction.getCommodity());
+                stock.setSize(transaction.getSize());
+                try {
+                    stock.setNum(InAndOutBoundUtil.inAndOut(0, transaction.getNum(), order.getPayDirection()));
+                } catch (Exception e) {
+                    return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, e.getLocalizedMessage());
+                }
+                list.add(stock);
+
+            } else {
+                Stock stock;
+//               若库存有记录则更新记录
+                stock = allByCommodityAndColorAndSize.get(0);
+                try {
+                    stock.setNum(InAndOutBoundUtil.inAndOut(stock.getNum(), transaction.getNum(), order.getPayDirection()));
+                } catch (Exception e) {
+                    return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, e.getLocalizedMessage());
+                }
+                list.add(stock);
+            }
+        }
+        stockRepository.saveAll(list);
+        orderRepository.save(order);
+        transactionRepository.deleteAllByOrderNumber(order.getOrderNumber());
         transactionRepository.saveAll(orderAndTransaction.getTransactions());
-        redisTemplate.delete(orderAndTransaction.getOrder().getOrderNumber());
+        redisTemplate.delete(order.getOrderNumber());
         return ResponseBodyUtil.successAjax();
     }
 

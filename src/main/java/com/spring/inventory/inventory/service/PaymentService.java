@@ -2,10 +2,13 @@ package com.spring.inventory.inventory.service;
 
 import com.alibaba.fastjson.JSON;
 import com.spring.inventory.inventory.bean.AjaxResponseBody;
+import com.spring.inventory.inventory.bean.Order;
 import com.spring.inventory.inventory.bean.Payment;
 import com.spring.inventory.inventory.dao.OrderRepository;
 import com.spring.inventory.inventory.dao.PaymentRepository;
+import com.spring.inventory.inventory.util.DictionaryUtil;
 import com.spring.inventory.inventory.util.ResponseBodyUtil;
+import com.spring.inventory.inventory.util.TimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +47,21 @@ public class PaymentService {
         payment.setThisPayPrice(ObjToBigDec(map.get("thispayPrice")));
         payment.setStatusPeople(name);
         paymentRepository.save(payment);
-        orderRepository.updatePayPrice(payment.getEndPrice(), payment.getOrderNumber());
+        orderRepository.updatePayPrice(payment.getEndPrice(), TimeUtil.getNow(), payment.getOrderNumber());
         return ResponseBodyUtil.successAjax();
+    }
+
+    public AjaxResponseBody endOrder(String orderNumber, String name) {
+        logger.info("orderNumber-----" + orderNumber);
+        Order order = orderRepository.findFirstByOrderNumber(orderNumber);
+        if (order.getStatus().equals(DictionaryUtil.statusR)) {
+            order.setStatus(DictionaryUtil.statusY);
+            order.setStatusPeople(name);
+            orderRepository.save(order);
+            return ResponseBodyUtil.successAjax();
+        } else {
+            return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, "订单未确认收货或已经完成无法继续完成订单");
+        }
+
     }
 }
