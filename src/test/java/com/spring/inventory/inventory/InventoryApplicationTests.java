@@ -25,8 +25,8 @@ public class InventoryApplicationTests {
     }
 
     @Test
-    public void test() {
-        billService.end(35);
+    public void test() throws ParseException {
+        billService.end(45);
     }
 
 }

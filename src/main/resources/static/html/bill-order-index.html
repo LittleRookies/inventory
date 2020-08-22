@@ -123,7 +123,7 @@
             , done: function (res, curr, count) {
                 for (var i in res.data) {
                     var MedicineID = res.data[i];
-                    if (MedicineID.price !== MedicineID.payPrice&& MedicineID.end === "N") {
+                    if (MedicineID.price !== MedicineID.payPrice&& MedicineID.status === "确认收货") {
                         $("tr[data-index='" + i + "']").attr({"style": "color:red", "font-weight": "bold"})
                     }
                 }

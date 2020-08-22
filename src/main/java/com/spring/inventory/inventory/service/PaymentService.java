@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.spring.inventory.inventory.util.TypeTransformUtil.ObjToBigDec;
@@ -63,5 +64,11 @@ public class PaymentService {
             return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, "订单未确认收货或已经完成无法继续完成订单");
         }
 
+    }
+
+    public AjaxResponseBody findAllByOrderNumber(String orderNumber) {
+        logger.info("findAllByOrderNumber-----orderNumber={}", orderNumber);
+        List<Payment> allByOrderNumber = paymentRepository.findAllByOrderNumberOrderByTimestampDesc(orderNumber);
+        return ResponseBodyUtil.successAjax(allByOrderNumber);
     }
 }

@@ -64,6 +64,14 @@
                         <table id="date" lay-filter="test"></table>
                     </div>
                 </div>
+                <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                    <legend>付款记录</legend>
+                </fieldset>
+                <ul class="layui-timeline" id="payment">
+
+                </ul>
+                <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                </fieldset>
                 <div class="layui-form-item">
                     <label class="layui-form-label">备注</label>
                     <div class="layui-input-block">
@@ -152,6 +160,17 @@
     ajaxGet("/commodity/findModel");
     for (var commodity_i = 0; commodity_i < ajaxdata.data.length; commodity_i++) {
         $("#commodity").append("<option value=\"" + ajaxdata.data[commodity_i].id + "\">" + ajaxdata.data[commodity_i].model + "</option>");
+    }
+    //获取历史付款记录
+    ajaxGet("/payment/findAllByOrderNumber?orderNumber=" + getQueryVariable("orderNumber"));
+    for (var payment_i = 0; payment_i < ajaxdata.data.length; payment_i++) {
+        $("#payment").append("<li class=\"layui-timeline-item\">\n" +
+            "                        <i class=\"layui-icon layui-timeline-axis\"></i>\n" +
+            "                        <div class=\"layui-timeline-content layui-text\">\n" +
+            "                            <div class=\"layui-timeline-title\">"
+            + ajaxdata.data[payment_i].timestamp + ",支付<span style='color: blue'>" + ajaxdata.data[payment_i].thisPayPrice + "</span>元 剩余<span style='color: red'>" + ajaxdata.data[payment_i].needPrice + "</span>元</div>\n" +
+            "                        </div>\n" +
+            "                    </li>");
     }
     /**************初始化表单内容 end**************/
     layui.use(['form', 'layedit', 'laydate'], function () {

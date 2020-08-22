@@ -12,7 +12,7 @@ public interface BillRepository extends BaseRepository<Bill, Integer> {
     List<Bill> findAllByClientAndDirectionOrderByTimeDesc(Integer client, String direction);
 
 
-    @Query(nativeQuery = true, value = "select b.*,c.name from bill b,client c where b.client=c.id and c.name like ?1",
+    @Query(nativeQuery = true, value = "select b.*,c.name from bill b,client c where b.client=c.id and c.name like ?1 order by b.time desc",
             countQuery = "select count(*) from bill b,client c where b.client=c.id and c.name like ?1")
     Page<Map> findAll(Pageable pageable, String name);
 

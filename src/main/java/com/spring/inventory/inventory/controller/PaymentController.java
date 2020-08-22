@@ -42,4 +42,17 @@ public class PaymentController {
         String name = request.getUserPrincipal().getName();
         return paymentService.endOrder(orderNumber, name);
     }
+
+
+    /**
+     * 查询订单的历史记录
+     *
+     * @param orderNumber
+     * @return
+     */
+    @PreAuthorize("hasAnyAuthority('root')")
+    @GetMapping("/findAllByOrderNumber")
+    public AjaxResponseBody findAllByOrderNumber(String orderNumber) {
+        return paymentService.findAllByOrderNumber(orderNumber);
+    }
 }

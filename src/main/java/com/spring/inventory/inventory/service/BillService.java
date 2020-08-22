@@ -5,6 +5,7 @@ import com.spring.inventory.inventory.bean.Bill;
 import com.spring.inventory.inventory.bean.Order;
 import com.spring.inventory.inventory.dao.BillRepository;
 import com.spring.inventory.inventory.dao.OrderRepository;
+import com.spring.inventory.inventory.task.TimeTask;
 import com.spring.inventory.inventory.util.DictionaryUtil;
 import com.spring.inventory.inventory.util.ResponseBodyUtil;
 import com.spring.inventory.inventory.util.TimeUtil;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +31,9 @@ public class BillService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private TimeTask timeTask;
 
     private final Logger logger = LoggerFactory.getLogger(BillService.class);
 
@@ -49,9 +54,10 @@ public class BillService {
 
 
     @Transactional
-    public AjaxResponseBody end(Integer id) {
+    public AjaxResponseBody end(Integer id) throws ParseException {
         logger.info("end-----id={}", id);
         Bill bill = billRepository.findFirstById(id);
+        timeTask.billSortPlanByClient(bill.getDirection(), bill.getClient());
         bill.setEnd("Y");
         bill.setTime(TimeUtil.getTimebytimestamp());
         billRepository.save(bill);
@@ -63,6 +69,12 @@ public class BillService {
             order.setStatus(DictionaryUtil.statusY);
         }
         orderRepository.saveAll(allByTimeBetweenAndClientAndPayDirection);
+        return ResponseBodyUtil.successAjax();
+    }
+
+    public AjaxResponseBody flush() throws ParseException {
+        logger.info("flush");
+        timeTask.billSort();
         return ResponseBodyUtil.successAjax();
     }
 }

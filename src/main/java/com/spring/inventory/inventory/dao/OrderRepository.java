@@ -68,6 +68,30 @@ public interface OrderRepository extends BaseRepository<Order, String> {
                     "  and ifnull(b.time,'9999-12-31') > o.timestamp")
     Page<Map> findAllByClientAndPayDirection(Pageable pageable, Integer id);
 
-
     List<Order> findAllByTimestampBetweenAndClientAndPayDirection(Timestamp start, Timestamp end, Integer client, String direction);
+
+    @Query(nativeQuery = true, value = "select ifnull(sum(oco.num), 0) as num, ifnull(sum(oco.pay_price), 0.00) as pay" +
+            " from (select sum(num) as num, o.pay_price" +
+            "      from orders o," +
+            "           order_content oc" +
+            "      where o.time >= ?1" +
+            "        and o.orderNumber = oc.orderNumber" +
+            "        and o.status in ('Y', 'R')" +
+            "        and o.pay_direction = 'P'" +
+            "        and o.client = 1" +
+            "      group by o.orderNumber) oco;")
+    List<Map> findAllByTodaySH(Timestamp timestamp);
+
+    @Query(nativeQuery = true, value = "select ifnull(sum(oco.num), 0) as num, ifnull(sum(oco.pay_price), 0.00) as pay" +
+            " from (select sum(num) as num, o.pay_price" +
+            "      from orders o," +
+            "           order_content oc" +
+            "      where o.time >= ?1" +
+            "        and o.orderNumber = oc.orderNumber" +
+            "        and o.status in ('Y', 'R')" +
+            "        and o.pay_direction = 'P'" +
+            "        and o.client != 1" +
+            "      group by o.orderNumber) oco;")
+    List<Map> findAllByTodayNoSH(Timestamp timestamp);
 }
+

@@ -28,7 +28,7 @@ public class OrderContentService {
 
     public AjaxResponseBody findOrderData(String orderNumber) {
         logger.info("findOrderData-----orderNumber={}", orderNumber);
-        List<Map> allByOrderNumber = orderContentRepository.findAllByOrderNumber(orderNumber);
+        List<Map> allByOrderNumber = orderContentRepository.findAllByOrderNumberBysql(orderNumber);
         return ResponseBodyUtil.successAjax(allByOrderNumber);
     }
 

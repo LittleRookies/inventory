@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.Map;
 
 @RestController
@@ -39,8 +40,18 @@ public class BillController {
      */
     @PreAuthorize("hasAnyAuthority('root')")
     @GetMapping("/end")
-    public AjaxResponseBody end(Integer id) {
-        return billService.end(id
-        );
+    public AjaxResponseBody end(Integer id) throws ParseException {
+        return billService.end(id);
+    }
+
+    /**
+     * 更新账单
+     *
+     * @returnø
+     */
+    @PreAuthorize("hasAnyAuthority('root')")
+    @GetMapping("/flush")
+    public AjaxResponseBody flush() throws ParseException {
+        return billService.flush();
     }
 }

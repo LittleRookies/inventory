@@ -3,25 +3,133 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <script src="../modules/echart/echarts.min.js"></script>
     <title>库存管理系统</title>
     <link rel="stylesheet" href="../layui/css/layui.css">
+    <link rel="stylesheet" href="../css/sysinde.css">
     <link rel="import" href="navigation.html">
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin" id="data">
     <div class="layui-body">
         <!-- 内容主体区域 -->
-        <div style="padding: 15px;">内容主体区域</div>
+        <div style="padding: 15px;">
+            <div class="layui-row">
+                <div class="layui-col-xs12 layui-col-md8">
+                    <div class="layui-row" style="background: blue">
+                        <div class="layui-col-md6" style="font-size: 30px;color: white">
+                            营销额<span style="font-size: 15px">（单位：元）</span>
+                            <hr class="layui-bg-gray">
+                        </div>
+                        <div class="layui-col-md3" style="font-size: 15px;color: white;top: 20px;text-align: center">
+                            营销额分布<span style="font-size: 5px">（单位：元）</span>
+                        </div>
+                        <div class="layui-col-md3" style="font-size: 15px;color: white;top: 20px;text-align: center">
+                            销量分布<span style="font-size: 5px">（单位：件）</span>
+                        </div>
+                    </div>
+                    <div class="layui-row" style="background: blue">
+                        <div class="layui-col-md6">
+                            <div style="height:100px;text-align: center" class="numtxt" id="today-total">
+
+                            </div>
+                        </div>
+                        <div class="layui-col-md3">
+                            <div id="main1" style="width: 100%;height:100%;"></div>
+                        </div>
+                        <div class="layui-col-md3">
+                            <div id="main2" style="width: 100%;height:100%;"></div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="layui-col-xs6 layui-col-md4">
+                    <div class="grid-demo">移动：6/12、桌面：4/12</div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script src="../layui/layui.js"></script>
 <script src="../js/vue/vue.min.js"></script>
 <script src="../js/Config.js"></script>
+<script src="../js/jquery/jquery.js"></script>
 <script>
     //JavaScript代码区域
     layui.use('element', function () {
         var element = layui.element;
     });
+    //获取option1，option2的数据
+    ajaxGet("/index/findToday");
+    $("#today-total").append(ajaxdata.data.today_total)
+
+    console.log()
+    //营销额分布
+    option1 = {
+        tooltip: {
+            trigger: 'item',
+            formatter: '{b}: {c} ({d}%)'
+        },
+        series: [
+            {
+                type: 'pie',
+                radius: ['50%', '70%'],
+                avoidLabelOverlap: false,
+                label: {
+                    show: false,
+                },
+                emphasis: {
+                    label: {
+                        show: true,
+                        fontSize: '10'
+                    }
+                },
+                labelLine: {
+                    show: false
+                },
+                data: ajaxdata.data.price
+                , color: [
+                    'yellow', 'red'
+                ]
+                , center: ['50%', '50%']
+            }
+        ]
+    };
+    var main1 = echarts.init(document.getElementById('main1'));
+    main1.setOption(option1);
+    //销量分布
+    option2 = {
+        tooltip: {
+            trigger: 'item',
+            formatter: '{b}: {c} ({d}%)'
+        },
+        series: [
+            {
+                type: 'pie',
+                radius: ['50%', '70%'],
+                avoidLabelOverlap: false,
+                label: {
+                    show: false,
+                },
+                emphasis: {
+                    label: {
+                        show: true,
+                        fontSize: '10'
+                    }
+                },
+                labelLine: {
+                    show: false
+                },
+                data: ajaxdata.data.num
+                , color: [
+                    'gray', 'green'
+                ]
+                , center: ['50%', '50%']
+            }
+        ]
+    };
+    var main2 = echarts.init(document.getElementById('main2'));
+    main2.setOption(option2);
 </script>
 </body>
 </html>

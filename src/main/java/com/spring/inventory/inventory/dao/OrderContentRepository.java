@@ -10,9 +10,11 @@ import java.util.Map;
 
 public interface OrderContentRepository extends BaseRepository<OrderContent, Integer> {
     @Query(nativeQuery = true, value = "select order_content.*,commodity.model as commodityName from order_content,commodity where commodity.id=order_content.commodity and order_content.orderNumber=?1")
-    List<Map> findAllByOrderNumber(String orderNumber);
+    List<Map> findAllByOrderNumberBysql(String orderNumber);
 
     @Transactional
     @Modifying
     void deleteAllByOrderNumber(String orderNumber);
+
+    List<OrderContent> findAllByOrderNumber(String orderNumber);
 }

@@ -53,33 +53,35 @@ public class TransactionService {
         order.setFounder(founder);
         List<Stock> list = new ArrayList<>();
 //        存入库存
-        for (Transaction transaction : orderAndTransaction.getTransactions()) {
-            List<Stock> allByCommodityAndColorAndSize = stockRepository.findAllByCommodityAndColorAndSize(
-                    transaction.getCommodity(), transaction.getColor(), transaction.getSize());
-            if (allByCommodityAndColorAndSize.size() == 0) {
-                Stock stock = new Stock();
+        if (order.getPayDirection().equals("R")) {
+            for (Transaction transaction : orderAndTransaction.getTransactions()) {
+                List<Stock> allByCommodityAndColorAndSize = stockRepository.findAllByCommodityAndColorAndSize(
+                        transaction.getCommodity(), transaction.getColor(), transaction.getSize());
+                if (allByCommodityAndColorAndSize.size() == 0) {
+                    Stock stock = new Stock();
 //                若库存没有记录则存入
-                stock.setClientId(order.getClient());
-                stock.setColor(transaction.getColor());
-                stock.setCommodity(transaction.getCommodity());
-                stock.setSize(transaction.getSize());
-                try {
-                    stock.setNum(InAndOutBoundUtil.inAndOut(0, transaction.getNum(), order.getPayDirection()));
-                } catch (Exception e) {
-                    return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, e.getLocalizedMessage());
-                }
-                list.add(stock);
+                    stock.setClientId(order.getClient());
+                    stock.setColor(transaction.getColor());
+                    stock.setCommodity(transaction.getCommodity());
+                    stock.setSize(transaction.getSize());
+                    try {
+                        stock.setNum(InAndOutBoundUtil.inAndOut(0, transaction.getNum(), order.getPayDirection()));
+                    } catch (Exception e) {
+                        return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, e.getLocalizedMessage());
+                    }
+                    list.add(stock);
 
-            } else {
-                Stock stock;
+                } else {
+                    Stock stock;
 //               若库存有记录则更新记录
-                stock = allByCommodityAndColorAndSize.get(0);
-                try {
-                    stock.setNum(InAndOutBoundUtil.inAndOut(stock.getNum(), transaction.getNum(), order.getPayDirection()));
-                } catch (Exception e) {
-                    return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, e.getLocalizedMessage());
+                    stock = allByCommodityAndColorAndSize.get(0);
+                    try {
+                        stock.setNum(InAndOutBoundUtil.inAndOut(stock.getNum(), transaction.getNum(), order.getPayDirection()));
+                    } catch (Exception e) {
+                        return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, e.getLocalizedMessage());
+                    }
+                    list.add(stock);
                 }
-                list.add(stock);
             }
         }
         stockRepository.saveAll(list);
@@ -100,4 +102,9 @@ public class TransactionService {
         return ResponseBodyUtil.successAjax(allByOrderNumber);
     }
 
+    public AjaxResponseBody findAllByOrderNumber(String orderNumber) {
+        logger.info("findAllByOrderNumber-----orderNumber={}", orderNumber);
+        List<Map> allByOrderNumber = transactionRepository.findAllByOrderNumber(orderNumber);
+        return ResponseBodyUtil.successAjax(allByOrderNumber);
+    }
 }

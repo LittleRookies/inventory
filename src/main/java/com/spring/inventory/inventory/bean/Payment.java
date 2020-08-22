@@ -1,6 +1,8 @@
 package com.spring.inventory.inventory.bean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -8,6 +10,7 @@ import java.sql.Timestamp;
 import java.util.Objects;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "payment")
 public class Payment {
     private int id;
@@ -61,6 +64,7 @@ public class Payment {
     }
 
     @Basic
+    @CreatedDate//创建时间
     @Column(name = "timestamp")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     public Timestamp getTimestamp() {

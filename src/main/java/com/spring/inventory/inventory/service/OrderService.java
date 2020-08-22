@@ -99,7 +99,7 @@ public class OrderService {
     public AjaxResponseBody findUpdate(String orderNumber) {
         logger.info("findUpdate-----orderNumber={}", orderNumber);
         Order firstByOrderNumber = orderRepository.findFirstByOrderNumber(orderNumber);
-        List<Map> allByOrderNumber = orderContentRepository.findAllByOrderNumber(orderNumber);
+        List<Map> allByOrderNumber = orderContentRepository.findAllByOrderNumberBysql(orderNumber);
         if (allByOrderNumber.size() != 0) {
             List<Map> list = new ArrayList<>();
             redisTemplate.delete(orderNumber);
@@ -121,7 +121,7 @@ public class OrderService {
         List<Map> allByOrderNumber = transactionRepository.findAllByOrderNumber(orderNumber);
         Order order = orderRepository.findFirstByOrderNumber(orderNumber);
         if (allByOrderNumber.size() == 0 && order.getStatus().equals(DictionaryUtil.statusZ)) {
-            allByOrderNumber = orderContentRepository.findAllByOrderNumber(orderNumber);
+            allByOrderNumber = orderContentRepository.findAllByOrderNumberBysql(orderNumber);
         }
         redisTemplate.delete(orderNumber);
         if (allByOrderNumber.size() != 0) {
@@ -144,6 +144,7 @@ public class OrderService {
         orderAndContent.getOrder().setFounder(founder);
 //        client=1 为 散户
         if (orderAndContent.getOrder().getClient() != 1) {
+            orderAndContent.getOrder().setPayPrice(ObjToBigDec(0));
 //            如果为非散户
             if (orderAndContent.getOrder().getStatus() == null || "".equals(orderAndContent.getOrder().getStatus())) {
                 orderAndContent.getOrder().setStatus(DictionaryUtil.statusN);
@@ -234,6 +235,45 @@ public class OrderService {
     public AjaxResponseBody change(String orderNumber, String status_people) {
         logger.info("change-----orderNumber={}", orderNumber);
         Order order = orderRepository.findFirstByOrderNumber(orderNumber);
+        List<OrderContent> allByOrderNumber = orderContentRepository.findAllByOrderNumber(orderNumber);
+
+//        如果为销售需要检查是否有足够库存
+        List<Stock> list = new ArrayList<>();
+        if (order.getPayDirection().equals("P")) {
+            for (OrderContent orderContent : allByOrderNumber) {
+                List<Stock> allByCommodityAndColorAndSize = stockRepository.findAllByCommodityAndColorAndSize(
+                        orderContent.getCommodity(), orderContent.getColor(), orderContent.getSize());
+                if (allByCommodityAndColorAndSize.size() == 0) {
+                    Stock stock = new Stock();
+//                若库存没有记录则存入
+                    stock.setClientId(order.getClient());
+                    stock.setColor(orderContent.getColor());
+                    stock.setCommodity(orderContent.getCommodity());
+                    stock.setSize(orderContent.getSize());
+                    try {
+                        stock.setNum(InAndOutBoundUtil.inAndOut(0, orderContent.getNum(), order.getPayDirection()));
+                    } catch (Exception e) {
+                        return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, e.getLocalizedMessage());
+                    }
+                    list.add(stock);
+
+                } else {
+                    Stock stock;
+//               若库存有记录则更新记录
+                    stock = allByCommodityAndColorAndSize.get(0);
+                    try {
+                        stock.setNum(InAndOutBoundUtil.inAndOut(stock.getNum(), orderContent.getNum(), order.getPayDirection()));
+                    } catch (Exception e) {
+                        return ResponseBodyUtil.defeatAjax(DictionaryUtil.normalErrCode, e.getLocalizedMessage());
+                    }
+                    list.add(stock);
+                }
+            }
+
+        }
+//        修改库存数量
+        stockRepository.saveAll(list);
+//        修改订单状态
         order.setStatus(DictionaryUtil.statusZ);
         order.setStatusPeople(status_people);
         orderRepository.save(order);
