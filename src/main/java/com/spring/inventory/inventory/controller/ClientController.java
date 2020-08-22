@@ -44,7 +44,7 @@ public class ClientController {
         Integer page = (Integer) map.get("page");
         Integer size = (Integer) map.get("limit");
         //判断是否进行模糊查询
-        String key = map.get("key") == null ? null : "%" + ((Map) map.get("key")).get("name") + "%";
+        String key = map.get("key") == null ? "%%" : "%" + ((Map) map.get("key")).get("name") + "%";
         return clientService.findAll(page, size, key);
     }
 

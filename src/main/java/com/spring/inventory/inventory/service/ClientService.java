@@ -33,17 +33,10 @@ public class ClientService {
 
     public AjaxResponseBody findAll(Integer page, Integer size, String name) {
         logger.info("findAll-----page={},size={},name={}", page, size, name);
-        if (name == null || name.equals("")) {
-            //查询全部
-            Pageable pageable = PageRequest.of(page - 1, size);
-            Page<Client> all = clientRepository.findAllByStatus(pageable, DictionaryUtil.statusY);
-            return ResponseBodyUtil.responseBodyByPage(all, all.getContent(), "");
-        } else {
-            //模糊查询
-            Pageable pageable = PageRequest.of(page - 1, size);
-            Page<Client> all = clientRepository.findAllByNameLikeAndStatus(pageable, name, DictionaryUtil.statusY);
-            return ResponseBodyUtil.responseBodyByPage(all, all.getContent(), "");
-        }
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Client> all = clientRepository.findAllByNameLikeAndStatusAndIdNot(pageable, name, DictionaryUtil.statusY,1);
+        return ResponseBodyUtil.responseBodyByPage(all, all.getContent(), "");
+
     }
 
 

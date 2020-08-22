@@ -12,7 +12,7 @@ public interface ClientRepository extends JpaRepository<Client, Integer> {
 
     Client findFirstByIdAndStatus(Integer id, String status);
 
-    Page<Client> findAllByNameLikeAndStatus(Pageable pageable, String name, String status);
+    Page<Client> findAllByNameLikeAndStatusAndIdNot(Pageable pageable, String name, String status, Integer id);
 
     Page<Client> findAllByStatus(Pageable pageable, String status);
 

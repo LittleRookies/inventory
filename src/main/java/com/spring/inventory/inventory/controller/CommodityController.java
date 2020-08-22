@@ -22,7 +22,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/commodity")
 public class CommodityController {
-    @Value(value = "${file.path}")
+    @Value(value = "${file.imgpath}")
     private String path;
 
     @Autowired

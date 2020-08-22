@@ -319,7 +319,7 @@
                 layer.confirm('真的删除行么', function (index) {
                     obj.del();
                     console.info(obj.data);
-                    ajaxPostByJson("/orderContent/delOrderData2", JSON.stringify(data));
+                    ajaxPostByJson("/transaction/delOrderData2", JSON.stringify(data));
                     layer.close(index);
                     table.reload("date");
                 });

@@ -62,6 +62,10 @@
                                 </button>
                             </div>
                         </script>
+                        <button type="button" class="layui-btn" id="test3"
+                                lay-event="importByexcel">
+                            <i class="layui-icon"></i>从excel中导入订单内容
+                        </button>
                         <script type="text/html" id="barDemo">
                             <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
                         </script>
@@ -175,31 +179,6 @@
         laydate.render({
             elem: '#date1'
         });
-
-        //创建一个编辑器
-        var editIndex = layedit.build('LAY_demo_editor');
-
-        //自定义验证规则
-        form.verify({
-            title: function (value) {
-                if (value.length < 5) {
-                    return '标题至少得5个字符啊';
-                }
-            }
-            , pass: [
-                /^[\S]{6,12}$/
-                , '密码必须6到12位，且不能出现空格'
-            ]
-            , checkpass: function (value) {
-                if (value !== document.getElementsByName("password")[0].value) {
-                    return '两次密码输入不一致';
-                }
-            }
-            , content: function (value) {
-                layedit.sync(editIndex);
-            }
-        });
-
         //监听指定开关
         form.on('switch(switchTest)', function (data) {
             layer.msg('开关checked：' + (this.checked ? 'true' : 'false'), {
@@ -295,6 +274,8 @@
                     }
                 });
                 return false;
+            } else if (obj.event === 'importByexcel') {
+
             }
         });
 
@@ -331,24 +312,27 @@
 <!--隐藏表单js-->
 <script type="text/javascript">
     var selectedText;
-    // layui.config({
-    //     base: '/layui/LayuiExtend/js/modules/'
-    // }).extend({
-    //     numinput: 'numinput/numinput'
-    // }).use(['form', 'numinput'], function () {
-    //     var form = layui.form, numinp = layui.numinput;
-    //     numinp.init({
-    //         // 123：123键置顶, 789：789键置顶
-    //         topBtns: 123,
-    //         // 右侧功能按钮
-    //         rightBtns: true,
-    //         // 监听键盘事件
-    //         listening: true,
-    //         // 批量配置默认小数精确度
-    //         defaultPrec: -1
-    //
-    //     });
-    // });
+    layui.use('upload', function () {
+        var upload = layui.upload;
+        upload.render({
+            elem: '#test3'
+            , url: '/orderContent/importByexcel' //改成您自己的上传接口
+            , accept: 'file' //普通文件
+            , exts: 'xlsx|xls' //只允许上传压缩文件
+            , data: {
+                orderNumber: document.getElementById("orderNumber").value
+            }
+            , done: function (res) {
+                if (res.code !== "0") {
+                    alert(res.msg);
+                } else {
+                    layer.msg('上传成功');
+                }
+                $("#add-form")[0].reset();
+                table.reload("date");
+            }
+        });
+    })
     layui.use(['layer', 'form'], function () {
         var layer = layui.layer,
             $ = layui.jquery,

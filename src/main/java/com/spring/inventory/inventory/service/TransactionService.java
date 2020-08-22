@@ -8,6 +8,7 @@ import com.spring.inventory.inventory.dao.TransactionRepository;
 import com.spring.inventory.inventory.util.DictionaryUtil;
 import com.spring.inventory.inventory.util.InAndOutBoundUtil;
 import com.spring.inventory.inventory.util.ResponseBodyUtil;
+import com.spring.inventory.inventory.util.TypeTransformUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,6 +87,12 @@ public class TransactionService {
             }
         }
         stockRepository.saveAll(list);
+        BigDecimal sumPrice = TypeTransformUtil.ObjToBigDec(0);
+//        更新总价
+        for (Transaction transaction : orderAndTransaction.getTransactions()) {
+            sumPrice = sumPrice.add(transaction.getTotalPrice());
+        }
+        order.setPrice(sumPrice);
         orderRepository.save(order);
         transactionRepository.deleteAllByOrderNumber(order.getOrderNumber());
         transactionRepository.saveAll(orderAndTransaction.getTransactions());

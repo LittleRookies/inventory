@@ -4,4 +4,6 @@ import com.spring.inventory.inventory.bean.Commodity;
 
 public interface CommodityRepository extends BaseRepository<Commodity, Integer> {
     Commodity findCommodityByIdAndStatus(Integer id, String status);
+
+    Commodity findFirstByModel(String model);
 }

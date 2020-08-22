@@ -2,10 +2,19 @@ package com.spring.inventory.inventory.controller;
 
 import com.spring.inventory.inventory.bean.AjaxResponseBody;
 import com.spring.inventory.inventory.service.OrderContentService;
+import com.spring.inventory.inventory.util.ResponseBodyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -13,6 +22,9 @@ import java.util.Map;
 public class OrderContentController {
     @Autowired
     private OrderContentService orderContentService;
+
+    @Value(value = "${file.uploadpath}")
+    private String path;
 
     /**
      * 查询订单商品内容
@@ -86,4 +98,21 @@ public class OrderContentController {
     public AjaxResponseBody reSetOrderData2(String orderNumber) {
         return orderContentService.reSetOrderDataByRedis(orderNumber);
     }
+
+    @RequestMapping(value = "/importByexcel", method = RequestMethod.POST)
+    public AjaxResponseBody upload(@RequestParam("file") List<MultipartFile> multipartFiles, String orderNumber) throws IOException {
+        List<String> path_list = new ArrayList<>();
+        for (MultipartFile multipartFile : multipartFiles) {
+            if (multipartFile.isEmpty()) {
+                return ResponseBodyUtil.defeatAjax("1", "空文件");
+            }
+            String time = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+            File file = new File(path + time + "_" + multipartFile.getOriginalFilename());
+            multipartFile.transferTo(file);
+            path_list.add(path + time + "_" + multipartFile.getOriginalFilename());
+        }
+
+        return orderContentService.orderContentByexcel(path_list.get(0), orderNumber);
+    }
+
 }

@@ -86,4 +86,5 @@ spring:
       time-to-live: 86400000 #缓存超时时间ms
 # 上传图片
 file:
-  path: /Users/apple/Downloads/学习/Java/github/inventory/src/main/resources/static/img/commdoity/
+  imgpath: /Users/apple/Work.localized/code.localized/MyCode/Java/github/inventory/src/main/resources/static/img/commdoity/
+  uploadpath: /Users/apple/Work.localized/code.localized/MyCode/Java/github/inventory/src/main/resources/upload/
